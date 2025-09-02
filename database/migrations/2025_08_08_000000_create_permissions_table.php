@@ -5,9 +5,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-
+return new class extends Migration
 {
-     function up()
+    public function up()
     {
         // Roles table
         Schema::create('roles', function (Blueprint $table) {
@@ -17,11 +17,11 @@ use Illuminate\Support\Facades\Schema;
         });
 
         // Permissions table
-        Schema::create('permissions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique(); // e.g., manage-users, manage-properties, view-reports
-            $table->timestamps();
-        });
+        // Schema::create('permissions', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('name')->unique(); // e.g., manage-users, manage-properties, view-reports
+        //     $table->timestamps();
+        // });
 
         // Pivot table for role_permission
         Schema::create('role_permission', function (Blueprint $table) {
@@ -40,11 +40,11 @@ use Illuminate\Support\Facades\Schema;
         });
     }
 
-     function down()
+    function down()
     {
         Schema::dropIfExists('role_user');
         Schema::dropIfExists('role_permission');
         Schema::dropIfExists('permissions');
         Schema::dropIfExists('roles');
     }
-}
+};

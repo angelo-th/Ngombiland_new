@@ -22,12 +22,3 @@ return new class extends Migration
         //
     }
 };
-Schema::create('audit_logs', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->onDelete('cascade');
-    $table->string('action');
-    $table->text('details')->nullable();
-    $table->ipAddress('ip_address')->nullable();
-    $table->timestamps();
-});
-$table->index('user_id');

@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Http\Livewire;
 
 use Livewire\Component;
@@ -7,11 +9,13 @@ class PropertyList extends Component
 {
     public $properties;
 
-    public function mount(){
+    public function mount()
+    {
         $this->properties = Property::with('owner')->latest()->get();
     }
 
-    public function render(){
+    public function render()
+    {
         return view('livewire.property-list');
     }
 }

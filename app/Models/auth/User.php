@@ -68,31 +68,3 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->roles()->syncWithoutDetaching($role);
     }
 }
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable, HasApiTokens;
-
-    protected $fillable = ['name', 'email', 'phone', 'password', 'role_id', 'status'];
-    protected $hidden = ['password', 'remember_token'];
-
-    public function role() { return $this->belongsTo(Role::class); }
-    public function properties() { return $this->hasMany(Property::class, 'owner_id'); }
-    public function investments() { return $this->hasMany(Investment::class); }
-    public function transactions() { return $this->hasMany(Transaction::class); }
-    public function messages() { return $this->hasMany(Message::class, 'sender_id'); }
-    public function reports() { return $this->hasMany(Report::class, 'agent_id'); }
-}
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable, HasApiTokens;
-
-    protected $fillable = ['name', 'email', 'phone', 'password', 'role_id', 'status'];
-    protected $hidden = ['password', 'remember_token'];
-
-    public function role() { return $this->belongsTo(Role::class); }
-    public function properties() { return $this->hasMany(Property::class, 'owner_id'); }
-    public function investments() { return $this->hasMany(Investment::class); }
-    public function transactions() { return $this->hasMany(Transaction::class); }
-    public function messages() { return $this->hasMany(Message::class, 'sender_id'); }
-    public function reports() { return $this->hasMany(Report::class, 'agent_id'); }
-}

@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Http\Livewire;
 
 use Livewire\Component;
@@ -8,19 +10,21 @@ class WalletTopup extends Component
 {
     public $amount;
 
-    public function topup(){
-        $this->validate(['amount'=>'required|numeric|min:100']);
+    public function topup()
+    {
+        $this->validate(['amount' => 'required|numeric|min:100']);
 
-        $wallet = Wallet::firstOrCreate(['user_id'=>Auth::id()]);
+        $wallet = Wallet::firstOrCreate(['user_id' => Auth::id()]);
         $wallet->balance += $this->amount;
         $wallet->save();
 
-        session()->flash('success','Portefeuille rechargé !');
+        session()->flash('success', 'Portefeuille rechargé !');
         $this->amount = '';
     }
 
-    public function render(){
-        $wallet = Wallet::firstOrCreate(['user_id'=>Auth::id()]);
+    public function render()
+    {
+        $wallet = Wallet::firstOrCreate(['user_id' => Auth::id()]);
         return view('livewire.wallet-topup', compact('wallet'));
     }
 }

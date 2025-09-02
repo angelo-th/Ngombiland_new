@@ -5,8 +5,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
+{
+    public function up()
     {
-   public function up() {
         // Schema::create('permissions', function (Blueprint $table) {
         //     $table->id();
         //     $table->string('name')->unique();
@@ -15,7 +16,8 @@ return new class extends Migration
         // });
     }
 
-     function down() {
+    function down()
+    {
         Schema::dropIfExists('permissions');
     }
-}
+};

@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Http\Livewire;
 
 use Livewire\Component;
@@ -9,19 +11,21 @@ class AgentGeo extends Component
     public $lat;
     public $lng;
 
-    public function validateGeo(){
+    public function validateGeo()
+    {
         $this->validate([
-            'propertyId'=>'required|exists:properties,id',
-            'lat'=>'required|numeric',
-            'lng'=>'required|numeric'
+            'propertyId' => 'required|exists:properties,id',
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric'
         ]);
 
         $property = Property::find($this->propertyId);
-        $property->update(['lat'=>$this->lat,'lng'=>$this->lng]);
-        session()->flash('success','Géolocalisation validée');
+        $property->update(['lat' => $this->lat, 'lng' => $this->lng]);
+        session()->flash('success', 'Géolocalisation validée');
     }
 
-    public function render(){
+    public function render()
+    {
         $properties = Property::all();
         return view('livewire.agent-geo', compact('properties'));
     }
