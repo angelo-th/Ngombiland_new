@@ -1,0 +1,30 @@
+/* Chat box scroll */
+.chat-box {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.message {
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.message.user {
+    background-color: #f3f4f6;
+    align-self: flex-start;
+}
+
+.message.admin {
+    background-color: #2c5282;
+    color: white;
+    align-self: flex-end;
+}
+
+/* Liste utilisateurs */
+#user-list li.selected {
+    background-color: #bee3f8;
+}

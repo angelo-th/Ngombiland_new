@@ -1,0 +1,60 @@
+/* ===============================
+   User Management Dashboard CSS
+   =============================== */
+
+/* Style du body principal */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6; /* gris clair pour fond général */
+}
+
+/* Sidebar styling */
+aside {
+    height: 100vh;
+}
+
+/* Liens de navigation */
+aside nav a {
+    transition: background 0.3s;
+}
+
+/* Hover effect pour les liens */
+aside nav a:hover {
+    background-color: #2563eb; /* bleu légèrement plus clair */
+}
+
+/* Active link style */
+aside nav a.bg-blue-700 {
+    font-weight: bold;
+}
+
+/* Tableau des transactions */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+/* En-tête du tableau */
+thead th {
+    background-color: #f9fafb;
+    font-weight: 600;
+}
+
+/* Lignes du tableau */
+tbody tr {
+    transition: background 0.2s;
+}
+
+/* Hover sur ligne */
+tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+/* Badge status */
+span.completed {
+    background-color: #d1fae5;
+    color: #065f46;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+}

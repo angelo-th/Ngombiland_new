@@ -1,0 +1,16 @@
+/* Sidebar background */
+.bg-blue-800 {
+    background-color: #1e40af;
+}
+
+/* Sidebar link hover */
+nav a:hover {
+    background-color: #1e3a8a;
+}
+
+/* Table hover */
+table tbody tr:hover {
+    background-color: #f3f4f6;
+}
+
+/* Badge colors dynamically handled via Tailwind classes */

@@ -1,0 +1,4 @@
+/* Transition pour dropdown et mobile menu */
+#userDropdown, #mobileMenu {
+    transition: all 0.2s ease-in-out;
+}

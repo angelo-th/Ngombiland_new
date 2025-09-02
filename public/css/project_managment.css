@@ -1,0 +1,23 @@
+/* Transition des onglets */
+[x-cloak] { display: none !important; }
+
+/* Hover card projects */
+.project-card:hover {
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Styles upload documents */
+.upload-box {
+    border: 2px dashed #D1D5DB; /* gray-300 */
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border 0.2s ease-in-out;
+}
+
+.upload-box:hover {
+    border-color: #10B981; /* Emerald-500 */
+}

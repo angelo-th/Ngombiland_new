@@ -1,0 +1,31 @@
+/* ======================
+   Admin Dashboard Styles
+   ====================== */
+
+/* Reusable statistic cards */
+.card-stat {
+    @apply bg-white p-6 rounded-lg shadow flex justify-between items-center;
+}
+
+/* Card icons */
+.card-stat .icon {
+    @apply p-3 rounded-full;
+}
+
+/* Status badges */
+.status-badge {
+    @apply py-1 px-2 rounded-full text-xs;
+}
+
+/* Different status colors */
+.status-badge.active {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-badge.pending {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-badge.blocked {
+    @apply bg-red-100 text-red-800;
+}

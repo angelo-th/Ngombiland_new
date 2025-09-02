@@ -1,0 +1,28 @@
+/* Boutons principaux */
+.btn-primary {
+    background-color: #2563eb; /* bleu Tailwind */
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+.btn-primary:hover {
+    background-color: #1e40af;
+}
+
+/* Boutons filtres */
+.filter-btn {
+    background-color: #f3f4f6;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+}
+.filter-btn:hover {
+    background-color: #e5e7eb;
+}
+.filter-btn.active {
+    background-color: #2563eb;
+    color: white;
+}

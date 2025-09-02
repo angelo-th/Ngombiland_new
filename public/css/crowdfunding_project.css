@@ -1,0 +1,19 @@
+ .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .project-card {
+            transition: all 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .progress-thin {
+            height: 4px;
+        }
+        .status-badge {
+            font-size: 0.7rem;
+        }
+        .investment-stats {
+            background: linear-gradient(135deg, #f0f4ff 0%, #f9f0ff 100%);
+        }

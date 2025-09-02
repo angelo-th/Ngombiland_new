@@ -1,0 +1,22 @@
+/* public/css/statistics.css */
+
+/* General layout */
+body {
+    background-color: #f9fafb; /* Light gray background */
+    font-family: 'Arial', sans-serif;
+}
+
+/* Sidebar */
+.w-64 {
+    min-height: 100vh; /* Full height */
+}
+
+/* Navigation links */
+nav ul li a {
+    transition: background 0.2s;
+}
+
+/* Custom colors for list sections */
+.bg-blue-50 { background-color: #ebf8ff; }
+.bg-green-50 { background-color: #f0fff4; }
+.bg-purple-50 { background-color: #faf5ff; }
