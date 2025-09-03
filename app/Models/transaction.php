@@ -10,30 +10,27 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id','type','amount','status'
+        'user_id',
+        'wallet_id',
+        'type',
+        'amount',
+        'description',
+        'status',
+        'reference',
+        'provider',
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-}
-// app/Models/Wallet.php
-namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Wallet extends Model
-{
-    protected $fillable = ['user_id', 'balance'];
-
-    public function user()
+    public function wallet()
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function transactions()
-    {
-        return $this->hasMany(Transaction::class);
+        return $this->belongsTo(Wallet::class);
     }
 }

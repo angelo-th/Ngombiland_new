@@ -3,15 +3,21 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\SupportController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PropertyController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\SupportController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
-use App\Http\Controllers\DashboardController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -24,7 +30,7 @@ Route::get('/services', [WelcomeController::class, 'services'])->name('services'
 Route::get('/about', [WelcomeController::class, 'about'])->name('about');
 Route::get('/contact', [WelcomeController::class, 'contact'])->name('contact');
 
-// Liste des biens
+// Liste des biens (publique)
 Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
 Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
 
@@ -44,30 +50,51 @@ Route::middleware('guest')->group(function () {
     Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
+
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
+// Vérification email
 Route::get('/email/verify', [VerificationController::class, 'notice'])->name('verification.notice');
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
 Route::post('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
 
-// ======================= 🖥️ DASHBOARD (UNIQUE POUR TOUS) =======================
-Route::get('/dashboard', function () {
-    return view('dashboard'); // Une seule vue
-})->name('dashboard');
+// ======================= 🖥️ DASHBOARD (AUTHENTIFIÉ) =======================
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-// ======================= 🏠 PROPRIÉTÉS =======================
-Route::middleware(['auth'])->prefix('dashboard')->group(function () {
-    Route::resource('properties', PropertyController::class);
+    // Wallet Routes
+    Route::get('/wallet', [WalletController::class, 'index'])->name('wallet');
+    Route::get('/wallet/topup', [WalletController::class, 'showTopupForm'])->name('wallet.topup.form');
+    Route::post('/wallet/topup', [WalletController::class, 'topup'])->name('wallet.topup');
+    Route::get('/wallet/withdraw', [WalletController::class, 'showWithdrawForm'])->name('wallet.withdraw.form');
+    Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+
+    // Messages Routes
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages');
+    Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+
+    // Reports Routes
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::get('/reports/create/{property}', [ReportController::class, 'create'])->name('reports.create');
+    Route::post('/reports/{property}', [ReportController::class, 'store'])->name('reports.store');
+    Route::get('/reports/{report}', [ReportController::class, 'show'])->name('reports.show');
+
+    // Properties Routes (authentifiés)
+    Route::resource('properties', PropertyController::class)->except(['index', 'show']);
     Route::post('properties/{id}/upload-documents', [PropertyController::class, 'uploadDocuments'])->name('properties.upload');
+
+    // Investments Routes
+    Route::resource('investments', InvestmentController::class);
 });
 
 // ======================= 👑 ADMIN =======================
-Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::resource('users', UserController::class);
-    Route::resource('properties', PropertyController::class);
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
 });
 
 // ======================= 🔄 ROUTES LARAVEL PAR DÉFAUT =======================
 Auth::routes(['verify' => true]);
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

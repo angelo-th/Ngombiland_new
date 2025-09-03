@@ -13,11 +13,44 @@ class DashboardController extends Controller
     public function index()
     {
         $stats = [
-            'properties_count' => Property::count(),
-            'investments_count' => Investment::count(),
-            'users_count' => User::count(),
+            [
+                'value' => Property::count(),
+                'label' => 'Properties'
+            ],
+            [
+                'value' => Investment::count(),
+                'label' => 'Investments'
+            ],
+            [
+                'value' => User::count(),
+                'label' => 'Users'
+            ]
         ];
 
-        return view('dashboard', compact('stats'));
+        $recentActivities = [
+            [
+                'icon' => 'fa-home',
+                'description' => 'New property listed in Douala',
+                'time' => 'Just now'
+            ],
+            [
+                'icon' => 'fa-money-bill',
+                'description' => 'New investment received',
+                'time' => '2 hours ago'
+            ],
+            [
+                'icon' => 'fa-user',
+                'description' => 'New user registration',
+                'time' => '3 hours ago'
+            ]
+        ];
+
+        // Get count of unread messages for the current user
+        $unreadMessages = 0;
+        if (auth()->check()) {
+            $unreadMessages = auth()->user()->unreadMessages()->count();
+        }
+
+        return view('dashboard', compact('stats', 'recentActivities', 'unreadMessages'));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Wallet;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -15,14 +15,33 @@ class WalletController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return view('dashboard.wallet.index', [
-            'balance' => $user->wallet_balance,
+        $wallet = $user->wallet;
+        $balance = $wallet ? $wallet->balance : 0;
+        
+        return view('wallet.index', [
+            'balance' => $balance,
             'transactions' => $user->transactions()->latest()->get()
         ]);
     }
 
+    // Show topup form
+    public function showTopupForm()
+    {
+        return view('wallet.topup');
+    }
+
+    // Show withdraw form
+    public function showWithdrawForm()
+    {
+        $user = Auth::user();
+        $wallet = $user->wallet;
+        $balance = $wallet ? $wallet->balance : 0;
+        
+        return view('wallet.withdraw', compact('balance'));
+    }
+
     // Top-up wallet via external API (MTN / Orange)
-    public function topUp(Request $request)
+    public function topup(Request $request)
     {
         $request->validate([
             'amount' => 'required|numeric|min:100'

@@ -4,46 +4,63 @@ namespace App\Http\Controllers;
 
 use App\Models\Property;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
 {
-    // return view('property_search'); // Removed invalid statement outside of method
+
 
     public function index()
     {
-        $properties = Property::where('owner_id', \Auth::id())->get();
-        return view('/property_search', compact('properties'));
+        $properties = Property::with('owner')->latest()->paginate(12);
+        return view('properties.index', compact('properties'));
     }
 
     public function create() {
-        return view('/create_property');
+        return view('properties.create');
     }
 
     public function store(Request $request) {
         $request->validate([
             'title'=>'required|string|max:255',
-            'owner_id' => 'required|exists:users,id',
+            'description'=>'required|string',
             'type'=>'required|string',
             'price'=>'required|numeric',
             'location'=>'required|string',
-            'status'=>'required|string'
+            'status'=>'required|string',
+            'images'=>'nullable|array',
+            'images.*'=>'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $property = Property::create([
-            'owner_id'=>\Auth::id(),
+            'owner_id'=>auth()->id(),
             'title'=>$request->title,
+            'description'=>$request->description,
             'type'=>$request->type,
             'price'=>$request->price,
             'location'=>$request->location,
             'status'=>$request->status
         ]);
 
+        if ($request->hasFile('images')) {
+            $images = [];
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('properties', 'public');
+                $images[] = $path;
+            }
+            $property->update(['images' => json_encode($images)]);
+        }
+
         return redirect()->route('properties.index')->with('success','Bien créé avec succès');
+    }
+
+    public function show(Property $property) {
+        return view('properties.show', compact('property'));
     }
 
     public function edit(Property $property) {
         $this->authorize('update', $property);
-        return view('dashboard.edit_property', compact('property'));
+        return view('properties.edit', compact('property'));
     }
 
     public function update(Request $request, Property $property) {
@@ -51,7 +68,7 @@ class PropertyController extends Controller
 
         $request->validate([
             'title'=>'required|string|max:255',
-            'owner_id' => 'required|exists:users,id',
+            'description'=>'required|string',
             'type'=>'required|string',
             'price'=>'required|numeric',
             'location'=>'required|string',

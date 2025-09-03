@@ -7,10 +7,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Property;
+use App\Models\Investment;
+use App\Models\Wallet;
+use App\Models\Transaction;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id')->where('read', false);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +40,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'role',
+        'first_name',
+        'last_name',
     ];
 
     /**
@@ -69,5 +92,20 @@ class User extends Authenticatable
     public function properties()
     {
         return $this->hasMany(Property::class, 'owner_id');
+    }
+
+    public function investments()
+    {
+        return $this->hasMany(Investment::class);
+    }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

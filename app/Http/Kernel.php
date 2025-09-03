@@ -73,5 +73,6 @@ class Kernel extends HttpKernel
         // autres middlewares...
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'limit.guest.messages' => \App\Http\Middleware\LimitGuestMessages::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
     ];
 }
