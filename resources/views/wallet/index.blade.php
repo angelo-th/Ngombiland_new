@@ -18,7 +18,7 @@
                     <h2 class="text-xl font-semibold text-gray-900 mb-4">Solde Actuel</h2>
                     <div class="text-center">
                         <div class="text-4xl font-bold text-green-600 mb-2">
-                            {{ number_format($balance, 0, ',', ' ') }} FCFA
+                            {{ number_format($balance, 0, '.', ',') }} FCFA
                         </div>
                         <p class="text-gray-600">Disponible</p>
                     </div>
@@ -72,7 +72,7 @@
                                         <p class="font-semibold 
                                             {{ $transaction->type === 'topup' ? 'text-green-600' : 
                                                ($transaction->type === 'withdraw' ? 'text-red-600' : 'text-blue-600') }}">
-                                            {{ $transaction->type === 'topup' ? '+' : '-' }}{{ number_format($transaction->amount, 0, ',', ' ') }} FCFA
+                                            {{ $transaction->type === 'topup' ? '+' : '-' }}{{ number_format($transaction->amount, 0, '.', ',') }} FCFA
                                         </p>
                                         <p class="text-sm text-gray-500">
                                             {{ ucfirst($transaction->status) }}
