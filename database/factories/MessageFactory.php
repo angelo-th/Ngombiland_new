@@ -27,7 +27,7 @@ class MessageFactory extends Factory
             'Je voudrais négocier le prix.',
             'Quand sera-t-il disponible ?',
             'Avez-vous d\'autres propriétés similaires ?',
-            'Je suis prêt à faire une offre.'
+            'Je suis prêt à faire une offre.',
         ];
 
         return [

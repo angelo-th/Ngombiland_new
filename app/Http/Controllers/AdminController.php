@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Property;
 use App\Models\Investment;
+use App\Models\Property;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -13,9 +12,10 @@ class AdminController extends Controller
     {
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
-            if (!auth()->user()->isAdmin()) {
+            if (auth()->user()->role !== 'admin') {
                 abort(403, 'Accès non autorisé');
             }
+
             return $next($request);
         });
     }
@@ -23,6 +23,7 @@ class AdminController extends Controller
     public function users()
     {
         $users = User::with('properties')->paginate(20);
+
         return view('admin.users', compact('users'));
     }
 

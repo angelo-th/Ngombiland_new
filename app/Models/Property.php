@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Property extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'title', 'description', 'price', 'location', 'latitude', 'longitude', 'status', 'type', 'images'
+        'user_id', 'title', 'description', 'price', 'location', 'latitude', 'longitude', 'status', 'type', 'images',
     ];
 
     protected $casts = [

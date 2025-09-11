@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use App\Models\Property;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +19,7 @@ class InvestmentFactory extends Factory
     public function definition(): array
     {
         $statuses = ['active', 'completed', 'cancelled', 'pending'];
-        
+
         return [
             'user_id' => User::factory(),
             'property_id' => Property::factory(),

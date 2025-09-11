@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
 
 // app/Http/Controllers/ChatController.php
 
-use Illuminate\Http\Request;
 use App\Models\Message;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Pusher\Pusher;
 
@@ -29,13 +30,13 @@ class ChatController extends Controller
         // Broadcast using Pusher
         $options = [
             'cluster' => env('PUSHER_APP_CLUSTER'),
-            'useTLS' => true
+            'useTLS' => true,
         ];
         $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), $options);
 
         $pusher->trigger('chat-channel', 'new-message', [
             'message' => $message,
-            'sender' => Auth::user()->name
+            'sender' => Auth::user()->name,
         ]);
 
         return response()->json(['status' => 'Message sent', 'data' => $message]);
@@ -46,9 +47,9 @@ class ChatController extends Controller
      */
     public function fetchMessages($userId)
     {
-        $messages = Message::where(function($q) use ($userId) {
+        $messages = Message::where(function ($q) use ($userId) {
             $q->where('sender_id', Auth::id())->where('receiver_id', $userId);
-        })->orWhere(function($q) use ($userId) {
+        })->orWhere(function ($q) use ($userId) {
             $q->where('sender_id', $userId)->where('receiver_id', Auth::id());
         })->orderBy('created_at', 'asc')->get();
 

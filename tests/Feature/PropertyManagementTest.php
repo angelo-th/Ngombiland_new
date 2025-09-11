@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Property;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class PropertyManagementTest extends TestCase
 {
@@ -29,7 +29,7 @@ class PropertyManagementTest extends TestCase
             'location' => 'Douala, Cameroun',
             'latitude' => 4.0483,
             'longitude' => 9.7043,
-            'type' => 'villa'
+            'type' => 'villa',
         ];
 
         $response = $this->post('/properties', $propertyData);
@@ -38,7 +38,7 @@ class PropertyManagementTest extends TestCase
         $this->assertDatabaseHas('properties', [
             'title' => 'Villa moderne à Douala',
             'user_id' => $this->user->id,
-            'price' => 50000000
+            'price' => 50000000,
         ]);
     }
 
@@ -51,7 +51,7 @@ class PropertyManagementTest extends TestCase
             'title' => 'Test Property',
             'description' => 'Test Description',
             'price' => 1000000,
-            'location' => 'Test Location'
+            'location' => 'Test Location',
         ];
 
         $response = $this->post('/properties', $propertyData);
@@ -63,7 +63,7 @@ class PropertyManagementTest extends TestCase
     {
         Property::factory()->create([
             'user_id' => $this->user->id,
-            'title' => 'Ma propriété'
+            'title' => 'Ma propriété',
         ]);
 
         $response = $this->get('/properties');
@@ -77,7 +77,7 @@ class PropertyManagementTest extends TestCase
     {
         $property = Property::factory()->create([
             'user_id' => $this->user->id,
-            'title' => 'Ancien titre'
+            'title' => 'Ancien titre',
         ]);
 
         $updateData = [
@@ -87,7 +87,7 @@ class PropertyManagementTest extends TestCase
             'location' => 'Nouvelle localisation',
             'type' => 'villa',
             'latitude' => 4.0483,
-            'longitude' => 9.7043
+            'longitude' => 9.7043,
         ];
 
         $response = $this->put("/properties/{$property->id}", $updateData);
@@ -96,7 +96,7 @@ class PropertyManagementTest extends TestCase
         $this->assertDatabaseHas('properties', [
             'id' => $property->id,
             'title' => 'Nouveau titre',
-            'price' => 7500000
+            'price' => 7500000,
         ]);
     }
 
@@ -104,14 +104,14 @@ class PropertyManagementTest extends TestCase
     public function user_can_delete_their_property()
     {
         $property = Property::factory()->create([
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
         ]);
 
         $response = $this->delete("/properties/{$property->id}");
 
         $response->assertRedirect('/properties');
         $this->assertDatabaseMissing('properties', [
-            'id' => $property->id
+            'id' => $property->id,
         ]);
     }
 
@@ -122,7 +122,7 @@ class PropertyManagementTest extends TestCase
             'title' => '', // Required field empty
             'description' => 'Test',
             'price' => -1000, // Negative price
-            'location' => 'Test'
+            'location' => 'Test',
         ];
 
         $response = $this->post('/properties', $invalidData);
@@ -138,7 +138,7 @@ class PropertyManagementTest extends TestCase
             'description' => 'Test property',
             'price' => 1000000,
             'location' => 'Test Location',
-            'type' => 'apartment'
+            'type' => 'apartment',
         ];
 
         $response = $this->post('/properties', $propertyData);
@@ -158,7 +158,7 @@ class PropertyManagementTest extends TestCase
             'location' => 'Yaoundé, Cameroun',
             'type' => 'apartment',
             'latitude' => 3.8480,
-            'longitude' => 11.5021
+            'longitude' => 11.5021,
         ];
 
         $response = $this->post('/properties', $propertyData);
@@ -177,7 +177,7 @@ class PropertyManagementTest extends TestCase
             'description' => 'Test property',
             'price' => 1000000,
             'location' => 'Test Location',
-            'type' => 'apartment'
+            'type' => 'apartment',
         ];
 
         $this->post('/properties', $propertyData);

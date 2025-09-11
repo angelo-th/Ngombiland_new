@@ -16,7 +16,7 @@ return new class extends Migration
         // });
     }
 
-    function down()
+    public function down()
     {
         Schema::dropIfExists('permissions');
     }

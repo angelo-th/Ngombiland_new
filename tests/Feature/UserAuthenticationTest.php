@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
-use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class UserAuthenticationTest extends TestCase
 {
@@ -22,7 +21,7 @@ class UserAuthenticationTest extends TestCase
             'phone' => '+237123456789',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'client'
+            'role' => 'client',
         ];
 
         $response = $this->post('/register', $userData);
@@ -30,7 +29,7 @@ class UserAuthenticationTest extends TestCase
         $response->assertRedirect('/dashboard');
         $this->assertDatabaseHas('users', [
             'email' => 'jean@example.com',
-            'role' => 'client'
+            'role' => 'client',
         ]);
     }
 
@@ -39,12 +38,12 @@ class UserAuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => bcrypt('password123')
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->post('/login', [
             'email' => 'test@example.com',
-            'password' => 'password123'
+            'password' => 'password123',
         ]);
 
         $response->assertRedirect('/dashboard');
@@ -56,12 +55,12 @@ class UserAuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'email' => 'test@example.com',
-            'password' => bcrypt('password123')
+            'password' => bcrypt('password123'),
         ]);
 
         $response = $this->post('/login', [
             'email' => 'test@example.com',
-            'password' => 'wrongpassword'
+            'password' => 'wrongpassword',
         ]);
 
         $response->assertSessionHasErrors('email');
@@ -78,7 +77,7 @@ class UserAuthenticationTest extends TestCase
             'phone' => '+237987654321',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'investor'
+            'role' => 'investor',
         ];
 
         $this->post('/register', $userData);
@@ -87,7 +86,7 @@ class UserAuthenticationTest extends TestCase
         $this->assertNotNull($user);
         $this->assertDatabaseHas('wallets', [
             'user_id' => $user->id,
-            'balance' => 0
+            'balance' => 0,
         ]);
     }
 
@@ -107,7 +106,7 @@ class UserAuthenticationTest extends TestCase
     public function user_role_validation_works()
     {
         $validRoles = ['admin', 'agent', 'client', 'proprietor', 'investor'];
-        
+
         foreach ($validRoles as $role) {
             $userData = [
                 'first_name' => 'Test',
@@ -116,15 +115,15 @@ class UserAuthenticationTest extends TestCase
                 'phone' => "+23712345678{$role}",
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
-                'role' => $role
+                'role' => $role,
             ];
 
             $response = $this->post('/register', $userData);
             $response->assertRedirect('/dashboard');
-            
+
             $this->assertDatabaseHas('users', [
                 'email' => "test{$role}@example.com",
-                'role' => $role
+                'role' => $role,
             ]);
         }
     }

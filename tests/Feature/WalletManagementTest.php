@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
-use App\Models\Transaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class WalletManagementTest extends TestCase
 {
@@ -19,7 +19,7 @@ class WalletManagementTest extends TestCase
         $this->user = User::factory()->create();
         $this->wallet = Wallet::factory()->create([
             'user_id' => $this->user->id,
-            'balance' => 100000
+            'balance' => 100000,
         ]);
         $this->actingAs($this->user);
     }
@@ -37,21 +37,21 @@ class WalletManagementTest extends TestCase
     public function user_can_topup_wallet()
     {
         $topupData = [
-            'amount' => 50000
+            'amount' => 50000,
         ];
 
         $response = $this->post('/wallet/topup', $topupData);
 
         $response->assertJson(['success' => true]);
-        
+
         $this->wallet->refresh();
         $this->assertEquals(150000, $this->wallet->balance);
-        
+
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->user->id,
             'type' => 'topup',
             'amount' => 50000,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
     }
 
@@ -59,21 +59,21 @@ class WalletManagementTest extends TestCase
     public function user_can_withdraw_from_wallet()
     {
         $withdrawData = [
-            'amount' => 25000
+            'amount' => 25000,
         ];
 
         $response = $this->post('/wallet/withdraw', $withdrawData);
 
         $response->assertJson(['success' => true]);
-        
+
         $this->wallet->refresh();
         $this->assertEquals(75000, $this->wallet->balance);
-        
+
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->user->id,
             'type' => 'withdraw',
             'amount' => 25000,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
     }
 
@@ -81,14 +81,14 @@ class WalletManagementTest extends TestCase
     public function user_cannot_withdraw_more_than_balance()
     {
         $withdrawData = [
-            'amount' => 200000 // More than balance
+            'amount' => 200000, // More than balance
         ];
 
         $response = $this->post('/wallet/withdraw', $withdrawData);
 
         $response->assertJson(['success' => false]);
         $response->assertJsonFragment(['message' => 'Insufficient balance']);
-        
+
         $this->wallet->refresh();
         $this->assertEquals(100000, $this->wallet->balance); // Unchanged
     }
@@ -97,7 +97,7 @@ class WalletManagementTest extends TestCase
     public function minimum_topup_amount_is_enforced()
     {
         $topupData = [
-            'amount' => 50 // Below minimum
+            'amount' => 50, // Below minimum
         ];
 
         $response = $this->post('/wallet/topup', $topupData);
@@ -109,7 +109,7 @@ class WalletManagementTest extends TestCase
     public function minimum_withdraw_amount_is_enforced()
     {
         $withdrawData = [
-            'amount' => 50 // Below minimum
+            'amount' => 50, // Below minimum
         ];
 
         $response = $this->post('/wallet/withdraw', $withdrawData);
@@ -125,14 +125,14 @@ class WalletManagementTest extends TestCase
             'user_id' => $this->user->id,
             'type' => 'topup',
             'amount' => 10000,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
 
         Transaction::factory()->create([
             'user_id' => $this->user->id,
             'type' => 'withdraw',
             'amount' => 5000,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
 
         $response = $this->get('/wallet');
@@ -153,12 +153,12 @@ class WalletManagementTest extends TestCase
 
         $this->wallet->refresh();
         $this->assertEquals($expectedBalance, $this->wallet->balance);
-        
+
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->user->id,
             'type' => 'commission',
             'amount' => $expectedCommission,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
     }
 
@@ -166,17 +166,17 @@ class WalletManagementTest extends TestCase
     public function wallet_balance_is_updated_correctly()
     {
         $initialBalance = $this->wallet->balance;
-        
+
         // Topup
         $this->wallet->balance += 25000;
         $this->wallet->save();
-        
+
         $this->assertEquals($initialBalance + 25000, $this->wallet->balance);
-        
+
         // Withdraw
         $this->wallet->balance -= 15000;
         $this->wallet->save();
-        
+
         $this->assertEquals($initialBalance + 10000, $this->wallet->balance);
     }
 
@@ -184,16 +184,16 @@ class WalletManagementTest extends TestCase
     public function wallet_creation_for_new_user()
     {
         $newUser = User::factory()->create();
-        
+
         // Simulate wallet creation during registration
         $wallet = Wallet::create([
             'user_id' => $newUser->id,
-            'balance' => 0
+            'balance' => 0,
         ]);
 
         $this->assertDatabaseHas('wallets', [
             'user_id' => $newUser->id,
-            'balance' => 0
+            'balance' => 0,
         ]);
     }
 }

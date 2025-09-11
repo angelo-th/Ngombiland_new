@@ -1,12 +1,13 @@
 <?php
+
 // app/Http/Controllers/USSDController.php
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Property;
 use App\Models\Investment;
+use App\Models\Property;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class USSDController extends Controller
 {
@@ -22,7 +23,7 @@ class USSDController extends Controller
         $textArray = explode('*', $text);
         $level = count($textArray);
 
-        $response = "";
+        $response = '';
 
         switch ($level) {
             case 1:
@@ -40,7 +41,7 @@ class USSDController extends Controller
                 switch ($textArray[1]) {
                     case '1':
                         // Search Property menu
-                        $response = "CON Enter property type or location:";
+                        $response = 'CON Enter property type or location:';
                         break;
                     case '3':
                         // Show user investments
@@ -57,13 +58,13 @@ class USSDController extends Controller
                         $response = "END Your wallet balance is: {$user->wallet_balance} FCFA";
                         break;
                     default:
-                        $response = "END Invalid option.";
+                        $response = 'END Invalid option.';
                         break;
                 }
                 break;
 
             default:
-                $response = "END Invalid input.";
+                $response = 'END Invalid input.';
                 break;
         }
 

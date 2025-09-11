@@ -1,169 +1,159 @@
 @extends('layouts.app')
 
-@section('title', 'Messages')
+@section('title', 'Messages - NGOMBILAND')
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Messages</h1>
-            <p class="mt-2 text-gray-600">Gérez vos conversations et communications</p>
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Mes Messages</h1>
+                <p class="mt-2 text-gray-600">Gérez vos conversations</p>
+            </div>
+            <button onclick="openMessageModal()" 
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Nouveau Message
+            </button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Liste des messages -->
-            <div class="lg:col-span-3">
-                <div class="bg-white rounded-lg shadow-md">
-                    <div class="p-6 border-b border-gray-200">
-                        <h2 class="text-xl font-semibold text-gray-900">Conversations</h2>
-                    </div>
-                    
-                    @if($messages->count() > 0)
-                        <div class="divide-y divide-gray-200">
-                            @foreach($messages as $message)
-                                <div class="p-6 hover:bg-gray-50 cursor-pointer" 
-                                     onclick="location.href='{{ route('messages.show', $message) }}'">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-4">
-                                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-user text-blue-600"></i>
-                                            </div>
-                                            <div>
-                                                <h3 class="font-medium text-gray-900">
-                                                    {{ $message->sender->name ?? 'Utilisateur inconnu' }}
-                                                </h3>
-                                                <p class="text-sm text-gray-500">
-                                                    {{ Str::limit($message->message, 60) }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-sm text-gray-500">
-                                                {{ $message->created_at->diffForHumans() }}
-                                            </p>
-                                            @if(!$message->read)
-                                                <div class="w-3 h-3 bg-blue-600 rounded-full mt-2"></div>
-                                            @endif
-                                        </div>
-                                    </div>
+        <!-- Messages List -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            @forelse($messages as $message)
+            <div class="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                <a href="{{ route('messages.show', $message) }}" class="block p-6">
+                    <div class="flex items-start space-x-4">
+                        <!-- Avatar -->
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="text-blue-600 font-semibold text-lg">
+                                    {{ substr($message->sender->name, 0, 1) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Message Content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    {{ $message->sender->name }}
+                                </h3>
+                                <div class="flex items-center space-x-2">
+                                    @if(!$message->read)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            Nouveau
+                                        </span>
+                                    @endif
+                                    <span class="text-sm text-gray-500">
+                                        {{ $message->created_at->diffForHumans() }}
+                                    </span>
                                 </div>
-                            @endforeach
-                        </div>
-                        
-                        <!-- Pagination -->
-                        <div class="p-6 border-t border-gray-200">
-                            {{ $messages->links() }}
-                        </div>
-                    @else
-                        <div class="p-12 text-center">
-                            <i class="fas fa-envelope text-gray-400 text-4xl mb-4"></i>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun message</h3>
-                            <p class="text-gray-500">Vous n'avez pas encore reçu de messages.</p>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Actions rapides -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
-                    
-                    <div class="space-y-3">
-                        <button onclick="openNewMessageModal()" 
-                                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center">
-                            <i class="fas fa-plus mr-2"></i>
-                            Nouveau Message
-                        </button>
-                        
-                        <a href="{{ route('dashboard') }}" 
-                           class="w-full bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition duration-200 flex items-center justify-center">
-                            <i class="fas fa-arrow-left mr-2"></i>
-                            Retour Dashboard
-                        </a>
-                    </div>
-
-                    <!-- Statistiques -->
-                    <div class="mt-6 pt-6 border-t border-gray-200">
-                        <h4 class="text-sm font-medium text-gray-900 mb-3">Statistiques</h4>
-                        <div class="space-y-2">
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-500">Total messages</span>
-                                <span class="font-medium">{{ $messages->total() }}</span>
                             </div>
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-500">Non lus</span>
-                                <span class="font-medium text-blue-600">{{ $messages->where('read', false)->count() }}</span>
-                            </div>
+                            <p class="mt-1 text-gray-600 line-clamp-2">
+                                {{ Str::limit($message->message, 100) }}
+                            </p>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div class="flex-shrink-0">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
+            @empty
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Aucun message</h3>
+                <p class="text-gray-600 mb-4">Vous n'avez pas encore de messages.</p>
+                <button onclick="openMessageModal()" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                    Envoyer un message
+                </button>
+            </div>
+            @endforelse
         </div>
+
+        <!-- Pagination -->
+        @if($messages->hasPages())
+        <div class="mt-8">
+            {{ $messages->links() }}
+        </div>
+        @endif
     </div>
 </div>
 
-<!-- Modal Nouveau Message -->
-<div id="newMessageModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
-    <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-900">Nouveau Message</h3>
-                    <button onclick="closeNewMessageModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
-                    </button>
+<!-- Message Modal -->
+<div id="messageModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Nouveau Message</h3>
+                <button onclick="closeMessageModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form action="{{ route('messages.store') }}" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label for="receiver_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        Destinataire
+                    </label>
+                    <select id="receiver_id" name="receiver_id" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('receiver_id') border-red-500 @enderror"
+                            required>
+                        <option value="">Sélectionner un destinataire</option>
+                        @foreach(\App\Models\User::where('id', '!=', auth()->id())->get() as $user)
+                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                        @endforeach
+                    </select>
+                    @error('receiver_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
                 
-                <form action="{{ route('messages.store') }}" method="POST">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="receiver_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Destinataire
-                        </label>
-                        <select id="receiver_id" name="receiver_id" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                            <option value="">Sélectionner un utilisateur</option>
-                            <!-- Les options seront chargées via JavaScript -->
-                        </select>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
-                            Message
-                        </label>
-                        <textarea id="message" name="message" rows="4" 
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                  placeholder="Tapez votre message..." required></textarea>
-                    </div>
-                    
-                    <div class="flex space-x-3">
-                        <button type="button" onclick="closeNewMessageModal()" 
-                                class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition duration-200">
-                            Annuler
-                        </button>
-                        <button type="submit" 
-                                class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">
-                            Envoyer
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="mb-4">
+                    <label for="message" class="block text-sm font-medium text-gray-700 mb-2">
+                        Message
+                    </label>
+                    <textarea id="message" name="message" rows="4"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('message') border-red-500 @enderror"
+                              placeholder="Tapez votre message ici..."
+                              required></textarea>
+                    @error('message')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeMessageModal()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        Annuler
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Envoyer
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 <script>
-function openNewMessageModal() {
-    document.getElementById('newMessageModal').classList.remove('hidden');
+function openMessageModal() {
+    document.getElementById('messageModal').classList.remove('hidden');
 }
 
-function closeNewMessageModal() {
-    document.getElementById('newMessageModal').classList.add('hidden');
+function closeMessageModal() {
+    document.getElementById('messageModal').classList.add('hidden');
 }
-
-// Charger la liste des utilisateurs pour le nouveau message
-// Cette fonction devrait être implémentée avec une API call
 </script>
 @endsection

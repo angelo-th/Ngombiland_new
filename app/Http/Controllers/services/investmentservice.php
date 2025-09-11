@@ -25,7 +25,7 @@ class InvestmentService
             'user_id' => $user->id,
             'property_id' => $property->id,
             'amount' => $amount,
-            'roi' => $this->calculateROI($property, $amount)
+            'roi' => $this->calculateROI($property, $amount),
         ]);
 
         return true;
@@ -35,6 +35,7 @@ class InvestmentService
     private function calculateROI(Property $property, float $amount)
     {
         $roiPercentage = 0.12; // 12% annual return as example
+
         return $amount * $roiPercentage;
     }
 }

@@ -8,7 +8,8 @@ use App\Services\Auth\OTPService; // assure-toi que ce service existe
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Spatie\Permission\Models\Role; // pour assigner les rôles
+
+// pour assigner les rôles
 
 class AuthController extends Controller
 {
@@ -58,7 +59,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'User registered successfully. Please verify your phone.',
             'user' => $user,
-            'otp_reference' => $otp['reference'] ?? null
+            'otp_reference' => $otp['reference'] ?? null,
         ], 201);
     }
 
@@ -72,10 +73,10 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('email', $request->login)
-                   ->orWhere('phone', $request->login)
-                   ->first();
+            ->orWhere('phone', $request->login)
+            ->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
@@ -91,11 +92,11 @@ class AuthController extends Controller
         // Création du token
         $token = $user->createToken($request->device_name)->plainTextToken;
 
-       return response()->json([
-    'user' => $user,
-    'token' => $token,
-    'roles' => $user->roles->pluck('name'),
-    'redirect' => route('dashboard'), // 🔥 Ajout pour renvoyer vers dashboard
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'roles' => $user->roles->pluck('name'),
+            'redirect' => route('dashboard'), // 🔥 Ajout pour renvoyer vers dashboard
         ]);
     }
 
@@ -103,6 +104,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+
         return response()->json(['message' => 'Successfully logged out']);
     }
 
@@ -117,7 +119,7 @@ class AuthController extends Controller
 
         $verified = $this->otpService->verifyOTP($request->phone, $request->otp, $request->reference);
 
-        if (!$verified) {
+        if (! $verified) {
             return response()->json(['message' => 'Invalid OTP'], 400);
         }
 
@@ -141,7 +143,7 @@ class AuthController extends Controller
             case 'both':
                 $user->assignRole(['property_owner', 'investor']);
                 break;
-             case 'admin':
+            case 'admin':
                 $user->assignRole('admin');
                 break;
             case 'client':

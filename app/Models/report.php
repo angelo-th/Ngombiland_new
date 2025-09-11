@@ -10,12 +10,12 @@ class Report extends Model
     use HasFactory;
 
     protected $fillable = [
-        'agent_id','property_id','description','latitude','longitude','status'
+        'agent_id', 'property_id', 'description', 'latitude', 'longitude', 'status',
     ];
 
     public function agent()
     {
-        return $this->belongsTo(User::class,'agent_id');
+        return $this->belongsTo(User::class, 'agent_id');
     }
 
     public function property()

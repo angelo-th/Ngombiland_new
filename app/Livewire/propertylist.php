@@ -2,8 +2,8 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
 use App\Models\Property;
+use Livewire\Component;
 
 class PropertyList extends Component
 {

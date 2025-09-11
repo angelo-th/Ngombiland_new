@@ -1,4 +1,5 @@
 <?php
+
 // database/migrations/2025_08_28_000000_create_roles_and_permissions_tables.php
 
 use Illuminate\Database\Migrations\Migration;
@@ -40,7 +41,7 @@ return new class extends Migration
         });
     }
 
-    function down()
+    public function down()
     {
         Schema::dropIfExists('role_user');
         Schema::dropIfExists('role_permission');

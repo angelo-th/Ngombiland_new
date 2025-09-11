@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('currency', 3)->default('XAF');
             $table->enum('status', ['active', 'suspended', 'closed'])->default('active');
             $table->timestamps();
-            
+
             $table->unique('user_id');
         });
     }

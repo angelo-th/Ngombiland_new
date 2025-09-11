@@ -1,4 +1,5 @@
 <?php
+
 // database/migrations/2025_08_28_000003_create_properties_table.php
 
 use Illuminate\Database\Migrations\Migration;

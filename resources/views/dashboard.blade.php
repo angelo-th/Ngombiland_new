@@ -1,106 +1,218 @@
-{{-- resources/views/dashboard.blade.php --}}
-<!DOCTYPE html>
-<html lang="en" class="h-full bg-gray-50">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NGOMBILAND - Dashboard</title>
+@extends('layouts.app')
 
-    {{-- Tailwind & FontAwesome CDN --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+@section('title', 'Dashboard - NGOMBILAND')
 
-    {{-- Laravel asset helper for CSS & JS --}}
-    <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
-    <script src="{{ asset('js/dashboard.js') }}"></script>
-</head>
-<body class="h-full">
-<div class="min-h-full">
-    {{-- Navigation --}}
-    <nav class="gradient-bg shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
+@section('content')
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Bienvenue, {{ auth()->user()->name }} !</h1>
+            <p class="mt-2 text-gray-600">Vue d'ensemble de votre activité sur NGOMBILAND</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        {{-- Logo with Laravel asset helper --}}
-                        <img class="h-8 w-8" src="{{ asset('images/logo.png') }}" alt="NGOMBILAND">
-                        <span class="ml-2 text-white font-bold text-xl">NGOMBILAND</span>
-                    </div>
-                    <div class="hidden md:block">
-                        <div class="ml-10 flex items-baseline space-x-4">
-                            {{-- Use route() or URL paths --}}
-                            <a href="{{ url('/dashboard') }}" class="text-white bg-indigo-500 bg-opacity-75 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                            <a href="{{ url('/property_search') }}" class="text-indigo-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Properties</a>
-                            <a href="{{ url('/marketplace_crowdfunding') }}" class="text-indigo-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Crowdfunding</a>
-                            <a href="{{ url('/user_walet') }}" class="text-indigo-200 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Wallet</a>
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
                         </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Mes Propriétés</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['properties_count'] }}</p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    {{-- Notifications --}}
-                    <a href="{{ url('/communication') }}">
-                        <button class="relative p-2 text-gray-600 hover:text-primary transition-colors">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">3</span>
-                        </button>
-                    </a>
-                    {{-- User Profile --}}
-                    <div class="relative">
-                        <button class="flex items-center text-white space-x-2" onclick="toggleUserMenu()">
-                            <img class="h-8 w-8 rounded-full" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiM2MzY2RjEiLz4KPGNpcmNsZSBjeD0iMTYiIGN5PSIxMiIgcj0iNCIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMjZjMC00LjQgMy42LTggOC04czggMy42IDggOCIgZmlsbD0id2hpdGUiLz4KPC9zdmc+" alt="Avatar">
-                            <span class="text-sm font-medium">Angelo Mbiock</span>
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </button>
-                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                            <a href="{{ url('/profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile & Settings</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
                         </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Mes Investissements</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['investments_count'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Messages Non Lus</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['unread_messages'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Solde Portefeuille</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['wallet_balance']) }} FCFA</p>
                     </div>
                 </div>
             </div>
         </div>
-    </nav>
 
-    {{-- Dashboard Header --}}
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-                <div class="flex items-center space-x-4">
-                    <div class="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
-                        <div class="flex items-center">
-                            <a href="{{ url('/user_walet') }}">
-                                <i class="fas fa-wallet text-green-600 mr-2"></i>
-                                <span class="text-sm font-medium text-green-800">Balance: </span>
-                                <span class="text-lg font-bold text-green-600 ml-1">45,750 FCFA</span>
-                            </a>
-                        </div>
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <a href="{{ route('properties.create') }}" 
+               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
                     </div>
-                    <a href="#">
-                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center">
-                            <i class="fas fa-plus mr-2"></i>Add Property
-                        </button>
-                    </a>
+                    <div>
+                        <p class="font-medium text-gray-900">Ajouter Propriété</p>
+                        <p class="text-sm text-gray-500">Publier une annonce</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ route('crowdfunding.index') }}" 
+               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Investir</p>
+                        <p class="text-sm text-gray-500">Projets crowdfunding</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="{{ route('messages.index') }}" 
+               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Messages</p>
+                        <p class="text-sm text-gray-500">Voir conversations</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="/wallet" 
+               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Portefeuille</p>
+                        <p class="text-sm text-gray-500">Gérer mon solde</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Recent Properties -->
+            @if($recent_properties->count() > 0)
+            <div class="bg-white rounded-lg shadow-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Mes Propriétés Récentes</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        @foreach($recent_properties as $property)
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900">{{ Str::limit($property->title, 30) }}</p>
+                                <p class="text-sm text-gray-500">{{ number_format($property->price) }} FCFA</p>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ $property->created_at->diffForHumans() }}
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ route('properties.index') }}" 
+                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Voir toutes mes propriétés →
+                        </a>
+                    </div>
                 </div>
             </div>
+            @endif
+
+            <!-- Recent Investments -->
+            @if($recent_investments->count() > 0)
+            <div class="bg-white rounded-lg shadow-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Mes Investissements Récents</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        @foreach($recent_investments as $investment)
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900">{{ Str::limit($investment->property->title, 30) }}</p>
+                                <p class="text-sm text-gray-500">{{ number_format($investment->amount) }} FCFA</p>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                {{ $investment->created_at->diffForHumans() }}
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ route('investments.index') }}" 
+                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Voir tous mes investissements →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
-    </header>
-
-    {{-- Main Content --}}
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {{-- Quick Stats --}}
-        @include('partials.stats') {{-- Suggested partial for stats section --}}
-
-        {{-- Main Dashboard Grid --}}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {{-- Recent Activities --}}
-            @include('partials.recent-activities')
-
-            {{-- Sidebar --}}
-            @include('partials.dashboard-sidebar')
-        </div>
-    </main>
+    </div>
 </div>
-</body>
-</html>
+@endsection

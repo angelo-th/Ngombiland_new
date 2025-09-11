@@ -2,15 +2,15 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Property;
 use App\Models\Investment;
-use App\Models\Wallet;
-use App\Models\Transaction;
 use App\Models\Message;
+use App\Models\Property;
+use App\Models\Transaction;
+use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class IntegrationTest extends TestCase
 {
@@ -27,7 +27,7 @@ class IntegrationTest extends TestCase
             'phone' => '+237123456789',
             'password' => 'password123',
             'password_confirmation' => 'password123',
-            'role' => 'investor'
+            'role' => 'investor',
         ];
 
         $response = $this->post('/register', $userData);
@@ -40,7 +40,7 @@ class IntegrationTest extends TestCase
         // 2. Wallet creation
         $this->assertDatabaseHas('wallets', [
             'user_id' => $user->id,
-            'balance' => 0
+            'balance' => 0,
         ]);
 
         // 3. Wallet topup
@@ -56,12 +56,12 @@ class IntegrationTest extends TestCase
         $property = Property::factory()->create([
             'user_id' => $proprietor->id,
             'is_crowdfundable' => true,
-            'expected_roi' => 15.0
+            'expected_roi' => 15.0,
         ]);
 
         // 5. Investment in property
         $investmentResponse = $this->post("/crowdfunding/{$property->id}/invest", [
-            'amount' => 100000
+            'amount' => 100000,
         ]);
 
         $investmentResponse->assertRedirect();
@@ -72,7 +72,7 @@ class IntegrationTest extends TestCase
             'user_id' => $user->id,
             'property_id' => $property->id,
             'amount' => 100000,
-            'roi' => 15.0
+            'roi' => 15.0,
         ]);
 
         // 7. Verify wallet balance was deducted
@@ -84,7 +84,7 @@ class IntegrationTest extends TestCase
             'user_id' => $user->id,
             'type' => 'investment',
             'amount' => 100000,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
     }
 
@@ -103,7 +103,7 @@ class IntegrationTest extends TestCase
             'latitude' => 4.0483,
             'longitude' => 9.7043,
             'type' => 'villa',
-            'images' => ['villa1.jpg', 'villa2.jpg']
+            'images' => ['villa1.jpg', 'villa2.jpg'],
         ];
 
         $response = $this->post('/properties', $propertyData);
@@ -116,7 +116,7 @@ class IntegrationTest extends TestCase
         // 2. Update property
         $updateData = [
             'title' => 'Villa moderne à Douala - Mise à jour',
-            'price' => 80000000
+            'price' => 80000000,
         ];
 
         $updateResponse = $this->put("/properties/{$property->id}", $updateData);
@@ -143,7 +143,7 @@ class IntegrationTest extends TestCase
         // 1. Send message
         $messageData = [
             'receiver_id' => $receiver->id,
-            'message' => 'Bonjour, je suis intéressé par votre propriété.'
+            'message' => 'Bonjour, je suis intéressé par votre propriété.',
         ];
 
         $response = $this->post('/messages', $messageData);
@@ -153,7 +153,7 @@ class IntegrationTest extends TestCase
             'sender_id' => $sender->id,
             'receiver_id' => $receiver->id,
             'message' => 'Bonjour, je suis intéressé par votre propriété.',
-            'read' => false
+            'read' => false,
         ]);
 
         // 2. Receiver views message
@@ -194,7 +194,7 @@ class IntegrationTest extends TestCase
         $user = User::factory()->create();
         $wallet = Wallet::factory()->create([
             'user_id' => $user->id,
-            'balance' => 1000000
+            'balance' => 1000000,
         ]);
         $this->actingAs($user);
 
@@ -206,7 +206,7 @@ class IntegrationTest extends TestCase
             'user_id' => $user->id,
             'type' => 'topup',
             'amount' => 200000,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
 
         // 2. Withdraw
@@ -217,7 +217,7 @@ class IntegrationTest extends TestCase
             'user_id' => $user->id,
             'type' => 'withdraw',
             'amount' => 150000,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
 
         // 3. Verify final balance
@@ -231,7 +231,7 @@ class IntegrationTest extends TestCase
     {
         $property = Property::factory()->create([
             'is_crowdfundable' => true,
-            'expected_roi' => 12.5
+            'expected_roi' => 12.5,
         ]);
 
         $investor1 = User::factory()->create(['role' => 'investor']);
@@ -239,12 +239,12 @@ class IntegrationTest extends TestCase
 
         Wallet::factory()->create([
             'user_id' => $investor1->id,
-            'balance' => 1000000
+            'balance' => 1000000,
         ]);
 
         Wallet::factory()->create([
             'user_id' => $investor2->id,
-            'balance' => 1000000
+            'balance' => 1000000,
         ]);
 
         // First investment
@@ -276,7 +276,7 @@ class IntegrationTest extends TestCase
             'type' => 'villa',
             'price' => 50000000,
             'location' => 'Douala, Cameroun',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         Property::factory()->create([
@@ -284,7 +284,7 @@ class IntegrationTest extends TestCase
             'type' => 'apartment',
             'price' => 25000000,
             'location' => 'Yaoundé, Cameroun',
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         Property::factory()->create([
@@ -292,7 +292,7 @@ class IntegrationTest extends TestCase
             'type' => 'house',
             'price' => 15000000,
             'location' => 'Bafoussam, Cameroun',
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         // Test public property listing
@@ -321,7 +321,7 @@ class IntegrationTest extends TestCase
             'title' => 'Test Property',
             'description' => 'Test Description',
             'price' => 1000000,
-            'location' => 'Test Location'
+            'location' => 'Test Location',
         ];
         $this->post('/properties', $propertyData)->assertRedirect('/properties');
 
@@ -329,7 +329,7 @@ class IntegrationTest extends TestCase
         $this->actingAs($investor);
         $wallet = Wallet::factory()->create([
             'user_id' => $investor->id,
-            'balance' => 500000
+            'balance' => 500000,
         ]);
         $property = Property::factory()->create(['is_crowdfundable' => true]);
         $this->post("/crowdfunding/{$property->id}/invest", ['amount' => 100000])
@@ -339,7 +339,7 @@ class IntegrationTest extends TestCase
         $this->actingAs($client);
         $messageData = [
             'receiver_id' => $proprietor->id,
-            'message' => 'Test message'
+            'message' => 'Test message',
         ];
         $this->post('/messages', $messageData)->assertRedirect('/messages');
     }

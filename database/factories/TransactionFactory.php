@@ -20,7 +20,7 @@ class TransactionFactory extends Factory
     {
         $types = ['topup', 'withdraw', 'investment', 'commission', 'refund'];
         $statuses = ['pending', 'completed', 'failed', 'cancelled'];
-        
+
         return [
             'user_id' => User::factory(),
             'type' => fake()->randomElement($types),

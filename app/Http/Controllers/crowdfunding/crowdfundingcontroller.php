@@ -3,31 +3,31 @@
 namespace App\Http\Controllers\Crowdfunding;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Investment;
 use App\Models\Property;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\Wallet;
 
 class CrowdfundingController extends Controller
 {
     public function index()
     {
         $projects = Property::where('is_crowdfundable', true)->with('investments')->get();
+
         return view('crowdfunding.index', compact('projects'));
     }
 
     public function invest(Request $request, Property $property)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:1000'
+            'amount' => 'required|numeric|min:1000',
         ]);
 
         $user = Auth::user();
         $wallet = $user->wallet;
 
-        if (!$wallet || $wallet->balance < $request->amount) {
+        if (! $wallet || $wallet->balance < $request->amount) {
             return back()->with('error', 'Insufficient wallet balance.');
         }
 
@@ -62,6 +62,7 @@ class CrowdfundingController extends Controller
     public function calculateROI(Property $property)
     {
         $roiPercentage = $property->expected_roi ?? 0;
+
         return response()->json(['roi_percentage' => $roiPercentage], 200);
     }
 
@@ -70,9 +71,11 @@ class CrowdfundingController extends Controller
         try {
             $user = Auth::user();
             $investments = $user->investments()->with('property')->get();
+
             return view('crowdfunding.my_investments', compact('investments'));
         } catch (\Exception $e) {
-            \Log::error('Error in userInvestments: ' . $e->getMessage());
+            \Log::error('Error in userInvestments: '.$e->getMessage());
+
             return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
         }
     }

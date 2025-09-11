@@ -32,7 +32,6 @@ class VerificationController extends Controller
     /**
      * Show the email verification notice.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     public function notice(Request $request)

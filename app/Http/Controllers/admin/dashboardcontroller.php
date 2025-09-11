@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Property;
 use App\Models\Investment;
+use App\Models\Property;
 use App\Models\Transaction;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -19,7 +18,7 @@ class DashboardController extends Controller
         $totalProperties = Property::count();
         $totalInvestments = Investment::count();
         $totalTransactions = Transaction::count();
-        
+
         // Latest 5 transactions
         $latestTransactions = Transaction::orderBy('created_at', 'desc')->take(5)->get();
 
@@ -37,16 +36,20 @@ class DashboardController extends Controller
     public function fetchNotifications()
     {
         $notifications = auth()->user()->unreadNotifications()->take(10)->get();
+
         return response()->json($notifications);
     }
+
     // Mark notification as read
     public function markNotificationAsRead($id)
     {
         $notification = auth()->user()->notifications()->where('id', $id)->first();
         if ($notification) {
             $notification->markAsRead();
+
             return response()->json(['status' => 'success']);
         }
+
         return response()->json(['status' => 'error'], 404);
     }
 }

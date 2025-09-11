@@ -10,12 +10,12 @@ class LimitGuestMessages
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             $count = Session::get('guest_messages_count', 0);
 
             if ($count >= 3) {
                 return response()->json([
-                    'error' => 'You have reached the maximum number of messages. Please register or login to continue.'
+                    'error' => 'You have reached the maximum number of messages. Please register or login to continue.',
                 ], 403);
             }
 

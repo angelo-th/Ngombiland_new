@@ -1,10 +1,11 @@
 <?php
+
 // app/Http/Controllers/PropertyController.php
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Property;
+use Illuminate\Http\Request;
 
 class PropertyController extends Controller
 {
@@ -12,6 +13,7 @@ class PropertyController extends Controller
     public function index()
     {
         $properties = Property::with('owner')->get();
+
         return response()->json($properties);
     }
 
@@ -23,10 +25,11 @@ class PropertyController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'required|numeric|min:0',
-            'location' => 'required|string|max:255'
+            'location' => 'required|string|max:255',
         ]);
 
         $property = Property::create($request->all());
+
         return response()->json(['message' => 'Property created successfully', 'property' => $property], 201);
     }
 
@@ -40,10 +43,11 @@ class PropertyController extends Controller
             'description' => 'string',
             'price' => 'numeric|min:0',
             'location' => 'string|max:255',
-            'status' => 'in:pending,approved,rejected'
+            'status' => 'in:pending,approved,rejected',
         ]);
 
         $property->update($request->all());
+
         return response()->json(['message' => 'Property updated successfully', 'property' => $property]);
     }
 
@@ -52,6 +56,7 @@ class PropertyController extends Controller
     {
         $property = Property::findOrFail($id);
         $property->delete();
+
         return response()->json(['message' => 'Property deleted successfully']);
     }
 
@@ -60,7 +65,7 @@ class PropertyController extends Controller
     {
         $property = Property::findOrFail($id);
         $request->validate([
-            'status' => 'required|in:approved,rejected'
+            'status' => 'required|in:approved,rejected',
         ]);
 
         $property->status = $request->status;

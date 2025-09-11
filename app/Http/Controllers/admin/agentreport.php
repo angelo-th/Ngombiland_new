@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Report;
 use App\Models\Property;
+use App\Models\Report;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -17,10 +16,10 @@ class ReportController extends Controller
         $user = Auth::user();
 
         // Only agents or admin can view reports
-        $reports = $user->role == 'agent' ? $user->reports()->with('property')->latest()->get() : Report::with('property','agent')->latest()->get();
+        $reports = $user->role == 'agent' ? $user->reports()->with('property')->latest()->get() : Report::with('property', 'agent')->latest()->get();
 
         return view('dashboard.reports.index', [
-            'reports' => $reports
+            'reports' => $reports,
         ]);
     }
 
@@ -28,6 +27,7 @@ class ReportController extends Controller
     public function create($propertyId)
     {
         $property = Property::findOrFail($propertyId);
+
         return view('dashboard.reports.create', compact('property'));
     }
 
@@ -56,7 +56,7 @@ class ReportController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'image' => $imagePath,
-            'status' => 'pending' // pending until verified by admin
+            'status' => 'pending', // pending until verified by admin
         ]);
 
         return redirect()->route('reports.index')->with('success', 'Report submitted successfully.');
@@ -90,8 +90,8 @@ class ReportController extends Controller
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Report;
+use Illuminate\Http\Request;
 
 class AgentReportController extends Controller
 {
@@ -99,6 +99,7 @@ class AgentReportController extends Controller
     public function index()
     {
         $reports = Report::with(['agent', 'property'])->get();
+
         return response()->json($reports);
     }
 
@@ -108,7 +109,7 @@ class AgentReportController extends Controller
         $report = Report::findOrFail($id);
 
         $request->validate([
-            'status' => 'required|in:pending,verified,rejected'
+            'status' => 'required|in:pending,verified,rejected',
         ]);
 
         $report->status = $request->status;
@@ -122,6 +123,7 @@ class AgentReportController extends Controller
     {
         $report = Report::findOrFail($id);
         $report->delete();
+
         return response()->json(['message' => 'Report deleted successfully']);
     }
 }

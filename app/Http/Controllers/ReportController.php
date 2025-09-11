@@ -2,21 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Report;
 use App\Models\Property;
+use App\Models\Report;
+use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
     public function index()
     {
         $reports = Report::with(['property', 'agent'])->latest()->paginate(20);
+
         return view('reports.index', compact('reports'));
     }
 
     public function create($propertyId)
     {
         $property = Property::findOrFail($propertyId);
+
         return view('reports.create', compact('property'));
     }
 

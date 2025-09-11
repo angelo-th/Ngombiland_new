@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Property;
 use App\Models\Investment;
+use App\Models\Property;
+use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class CrowdfundingTest extends TestCase
 {
@@ -19,18 +19,18 @@ class CrowdfundingTest extends TestCase
         parent::setUp();
         $this->investor = User::factory()->create(['role' => 'investor']);
         $this->proprietor = User::factory()->create(['role' => 'proprietor']);
-        
+
         $this->investorWallet = Wallet::factory()->create([
             'user_id' => $this->investor->id,
-            'balance' => 1000000
+            'balance' => 1000000,
         ]);
-        
+
         $this->property = Property::factory()->create([
             'user_id' => $this->proprietor->id,
             'is_crowdfundable' => true,
-            'expected_roi' => 12.5
+            'expected_roi' => 12.5,
         ]);
-        
+
         $this->actingAs($this->investor);
     }
 
@@ -48,19 +48,19 @@ class CrowdfundingTest extends TestCase
     public function investor_can_invest_in_crowdfunding_project()
     {
         $investmentData = [
-            'amount' => 100000
+            'amount' => 100000,
         ];
 
         $response = $this->post("/crowdfunding/{$this->property->id}/invest", $investmentData);
 
         $response->assertRedirect();
         $response->assertSessionHas('success');
-        
+
         $this->assertDatabaseHas('investments', [
             'user_id' => $this->investor->id,
             'property_id' => $this->property->id,
             'amount' => 100000,
-            'roi' => 12.5
+            'roi' => 12.5,
         ]);
     }
 
@@ -71,7 +71,7 @@ class CrowdfundingTest extends TestCase
         $investmentAmount = 150000;
 
         $investmentData = [
-            'amount' => $investmentAmount
+            'amount' => $investmentAmount,
         ];
 
         $this->post("/crowdfunding/{$this->property->id}/invest", $investmentData);
@@ -84,19 +84,19 @@ class CrowdfundingTest extends TestCase
     public function investor_cannot_invest_with_insufficient_balance()
     {
         $this->investorWallet->update(['balance' => 50000]);
-        
+
         $investmentData = [
-            'amount' => 100000 // More than balance
+            'amount' => 100000, // More than balance
         ];
 
         $response = $this->post("/crowdfunding/{$this->property->id}/invest", $investmentData);
 
         $response->assertSessionHas('error');
         $response->assertSessionHas('error', 'Insufficient wallet balance.');
-        
+
         $this->assertDatabaseMissing('investments', [
             'user_id' => $this->investor->id,
-            'property_id' => $this->property->id
+            'property_id' => $this->property->id,
         ]);
     }
 
@@ -104,7 +104,7 @@ class CrowdfundingTest extends TestCase
     public function minimum_investment_amount_is_enforced()
     {
         $investmentData = [
-            'amount' => 500 // Below minimum
+            'amount' => 500, // Below minimum
         ];
 
         $response = $this->post("/crowdfunding/{$this->property->id}/invest", $investmentData);
@@ -119,7 +119,7 @@ class CrowdfundingTest extends TestCase
         $expectedRoi = 12.5; // From property
 
         $investmentData = [
-            'amount' => $investmentAmount
+            'amount' => $investmentAmount,
         ];
 
         $this->post("/crowdfunding/{$this->property->id}/invest", $investmentData);
@@ -138,15 +138,15 @@ class CrowdfundingTest extends TestCase
             'user_id' => $this->investor->id,
             'property_id' => $this->property->id,
             'amount' => 100000,
-            'roi' => 12.5
+            'roi' => 12.5,
         ]);
 
         $this->actingAs($this->investor);
         $response = $this->get('/investments');
 
         if ($response->status() !== 200) {
-            dump('Response status: ' . $response->status());
-            dump('Response content: ' . $response->getContent());
+            dump('Response status: '.$response->status());
+            dump('Response content: '.$response->getContent());
         }
 
         $response->assertStatus(200);
@@ -158,7 +158,7 @@ class CrowdfundingTest extends TestCase
     public function investment_status_is_set_correctly()
     {
         $investmentData = [
-            'amount' => 100000
+            'amount' => 100000,
         ];
 
         $this->post("/crowdfunding/{$this->property->id}/invest", $investmentData);
@@ -174,7 +174,7 @@ class CrowdfundingTest extends TestCase
     public function investment_date_is_recorded()
     {
         $investmentData = [
-            'amount' => 100000
+            'amount' => 100000,
         ];
 
         $this->post("/crowdfunding/{$this->property->id}/invest", $investmentData);
@@ -192,7 +192,7 @@ class CrowdfundingTest extends TestCase
         $investor2 = User::factory()->create(['role' => 'investor']);
         $wallet2 = Wallet::factory()->create([
             'user_id' => $investor2->id,
-            'balance' => 500000
+            'balance' => 500000,
         ]);
 
         // First investor
@@ -204,12 +204,12 @@ class CrowdfundingTest extends TestCase
 
         $this->assertDatabaseHas('investments', [
             'user_id' => $this->investor->id,
-            'amount' => 100000
+            'amount' => 100000,
         ]);
 
         $this->assertDatabaseHas('investments', [
             'user_id' => $investor2->id,
-            'amount' => 150000
+            'amount' => 150000,
         ]);
     }
 
@@ -221,14 +221,14 @@ class CrowdfundingTest extends TestCase
             'user_id' => $this->investor->id,
             'property_id' => $this->property->id,
             'amount' => 100000,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         Investment::factory()->create([
             'user_id' => $this->investor->id,
             'property_id' => $this->property->id,
             'amount' => 200000,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $totalInvestment = Investment::where('property_id', $this->property->id)
@@ -243,7 +243,7 @@ class CrowdfundingTest extends TestCase
     {
         $normalProperty = Property::factory()->create([
             'user_id' => $this->proprietor->id,
-            'is_crowdfundable' => false
+            'is_crowdfundable' => false,
         ]);
 
         $response = $this->get('/crowdfunding');

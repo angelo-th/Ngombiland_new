@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Transaction;
-use Illuminate\Support\Facades\Http;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class WalletController extends Controller
 {
@@ -17,10 +16,10 @@ class WalletController extends Controller
         $user = Auth::user();
         $wallet = $user->wallet;
         $balance = $wallet ? $wallet->balance : 0;
-        
+
         return view('wallet.index', [
             'balance' => $balance,
-            'transactions' => $user->transactions()->latest()->get()
+            'transactions' => $user->transactions()->latest()->get(),
         ]);
     }
 
@@ -36,7 +35,7 @@ class WalletController extends Controller
         $user = Auth::user();
         $wallet = $user->wallet;
         $balance = $wallet ? $wallet->balance : 0;
-        
+
         return view('wallet.withdraw', compact('balance'));
     }
 
@@ -44,7 +43,7 @@ class WalletController extends Controller
     public function topup(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:100'
+            'amount' => 'required|numeric|min:100',
         ]);
 
         $user = Auth::user();
@@ -57,7 +56,7 @@ class WalletController extends Controller
             : Http::post('https://api.mobilemoney.com/topup', [
                 'phone' => $user->phone,
                 'amount' => $amount,
-                'currency' => 'XAF'
+                'currency' => 'XAF',
             ]);
 
         if (app()->environment('testing') || $response->successful()) {
@@ -84,7 +83,7 @@ class WalletController extends Controller
     public function withdraw(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:100'
+            'amount' => 'required|numeric|min:100',
         ]);
 
         $user = Auth::user();
@@ -102,7 +101,7 @@ class WalletController extends Controller
             : Http::post('https://api.mobilemoney.com/withdraw', [
                 'phone' => $user->phone,
                 'amount' => $amount,
-                'currency' => 'XAF'
+                'currency' => 'XAF',
             ]);
 
         if (app()->environment('testing') || $response->successful()) {

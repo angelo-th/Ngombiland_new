@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\SupportMessage;
+use Illuminate\Http\Request;
 
 class SupportController extends Controller
 {

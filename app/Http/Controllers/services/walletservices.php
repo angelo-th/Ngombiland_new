@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\Transaction;
+use App\Models\User;
 
 class WalletService
 {
@@ -24,7 +24,7 @@ class WalletService
                 'type' => 'topup',
                 'amount' => $amount,
                 'status' => 'completed',
-                'provider' => $provider
+                'provider' => $provider,
             ]);
 
             return true;
@@ -51,7 +51,7 @@ class WalletService
                 'type' => 'withdraw',
                 'amount' => $amount,
                 'status' => 'completed',
-                'provider' => $provider
+                'provider' => $provider,
             ]);
 
             return true;
@@ -69,7 +69,7 @@ class WalletService
     }
 }
 // Example usage:
-$walletService = new WalletService();
+$walletService = new WalletService;
 $user = User::find(1); // Get user by ID
 
 // Top-up wallet

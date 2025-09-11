@@ -24,7 +24,7 @@ class PropertyFactory extends Factory
             'Yaoundé, Cameroun',
             'Bafoussam, Cameroun',
             'Garoua, Cameroun',
-            'Maroua, Cameroun'
+            'Maroua, Cameroun',
         ];
 
         return [
@@ -38,9 +38,9 @@ class PropertyFactory extends Factory
             'status' => fake()->randomElement($statuses),
             'type' => fake()->randomElement($types),
             'images' => [
-                'property_' . fake()->uuid() . '.jpg',
-                'property_' . fake()->uuid() . '.jpg',
-                'property_' . fake()->uuid() . '.jpg'
+                'property_'.fake()->uuid().'.jpg',
+                'property_'.fake()->uuid().'.jpg',
+                'property_'.fake()->uuid().'.jpg',
             ],
             'is_crowdfundable' => fake()->boolean(30), // 30% chance of being crowdfundable
             'expected_roi' => fake()->randomFloat(2, 8, 20), // ROI between 8% and 20%
@@ -85,7 +85,7 @@ class PropertyFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'villa',
-            'title' => 'Villa ' . fake()->word() . ' à ' . fake()->city(),
+            'title' => 'Villa '.fake()->word().' à '.fake()->city(),
             'price' => fake()->numberBetween(50000000, 200000000),
         ]);
     }
@@ -97,7 +97,7 @@ class PropertyFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => 'apartment',
-            'title' => 'Appartement ' . fake()->word() . ' à ' . fake()->city(),
+            'title' => 'Appartement '.fake()->word().' à '.fake()->city(),
             'price' => fake()->numberBetween(10000000, 50000000),
         ]);
     }

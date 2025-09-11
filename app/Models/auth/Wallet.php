@@ -11,13 +11,13 @@ class Wallet extends Model
         'balance',
         'frozen_amount',
         'currency',
-        'last_transaction_at'
+        'last_transaction_at',
     ];
 
     protected $casts = [
         'balance' => 'decimal:2',
         'frozen_amount' => 'decimal:2',
-        'last_transaction_at' => 'datetime'
+        'last_transaction_at' => 'datetime',
     ];
 
     public function user()

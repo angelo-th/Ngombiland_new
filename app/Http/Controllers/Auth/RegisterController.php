@@ -45,7 +45,6 @@ class RegisterController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
@@ -62,7 +61,6 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
      * @return \App\Models\User
      */
     protected function create(array $data)
@@ -70,7 +68,7 @@ class RegisterController extends Controller
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
-            'name' => $data['first_name'] . ' ' . $data['last_name'],
+            'name' => $data['first_name'].' '.$data['last_name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
@@ -81,7 +79,7 @@ class RegisterController extends Controller
         $user->wallet()->create([
             'balance' => 0,
             'currency' => 'XAF',
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         return $user;
@@ -90,7 +88,6 @@ class RegisterController extends Controller
     /**
      * Handle a registration request for the application.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function register(Request $request)
@@ -113,7 +110,6 @@ class RegisterController extends Controller
     /**
      * The user has been registered.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  mixed  $user
      * @return mixed
      */

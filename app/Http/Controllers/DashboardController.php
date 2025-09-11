@@ -2,55 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Property;
-use App\Models\Investment;
-use App\Models\User;
+use App\Models\Message;
 
 class DashboardController extends Controller
 {
-    // Show the dashboard for all users and visitors
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
+        $user = auth()->user();
+
+        // Statistiques de l'utilisateur
         $stats = [
-            [
-                'value' => Property::count(),
-                'label' => 'Properties'
-            ],
-            [
-                'value' => Investment::count(),
-                'label' => 'Investments'
-            ],
-            [
-                'value' => User::count(),
-                'label' => 'Users'
-            ]
+            'properties_count' => $user->properties()->count(),
+            'investments_count' => $user->investments()->count(),
+            'unread_messages' => Message::where('receiver_id', $user->id)->where('read', false)->count(),
+            'wallet_balance' => $user->wallet ? $user->wallet->balance : 0,
         ];
 
-        $recentActivities = [
-            [
-                'icon' => 'fa-home',
-                'description' => 'New property listed in Douala',
-                'time' => 'Just now'
-            ],
-            [
-                'icon' => 'fa-money-bill',
-                'description' => 'New investment received',
-                'time' => '2 hours ago'
-            ],
-            [
-                'icon' => 'fa-user',
-                'description' => 'New user registration',
-                'time' => '3 hours ago'
-            ]
-        ];
+        // Propriétés récentes de l'utilisateur
+        $recent_properties = $user->properties()->latest()->take(5)->get();
 
-        // Get count of unread messages for the current user
-        $unreadMessages = 0;
-        if (auth()->check()) {
-            $unreadMessages = auth()->user()->unreadMessages()->count();
-        }
+        // Investissements récents
+        $recent_investments = $user->investments()->with('property')->latest()->take(5)->get();
 
-        return view('dashboard', compact('stats', 'recentActivities', 'unreadMessages'));
+        // Messages récents
+        $recent_messages = Message::where('receiver_id', $user->id)
+            ->with('sender')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('dashboard', compact('stats', 'recent_properties', 'recent_investments', 'recent_messages'));
     }
 }

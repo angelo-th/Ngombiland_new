@@ -10,8 +10,11 @@ class Role extends Model
 
     // Constantes pour les rôles principaux
     const ROLE_ADMIN = 'admin';
+
     const ROLE_PROPERTY_OWNER = 'property_owner';
+
     const ROLE_INVESTOR = 'investor';
+
     const ROLE_USER = 'user';
 
     public function permissions()

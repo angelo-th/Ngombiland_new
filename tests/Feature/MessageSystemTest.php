@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 
 class MessageSystemTest extends TestCase
 {
@@ -25,7 +25,7 @@ class MessageSystemTest extends TestCase
     {
         $messageData = [
             'receiver_id' => $this->receiver->id,
-            'message' => 'Bonjour, je suis intéressé par votre propriété.'
+            'message' => 'Bonjour, je suis intéressé par votre propriété.',
         ];
 
         $response = $this->post('/messages', $messageData);
@@ -35,7 +35,7 @@ class MessageSystemTest extends TestCase
             'sender_id' => $this->sender->id,
             'receiver_id' => $this->receiver->id,
             'message' => 'Bonjour, je suis intéressé par votre propriété.',
-            'read' => false
+            'read' => false,
         ]);
     }
 
@@ -45,7 +45,7 @@ class MessageSystemTest extends TestCase
         Message::factory()->create([
             'sender_id' => $this->receiver->id,
             'receiver_id' => $this->sender->id,
-            'message' => 'Message reçu'
+            'message' => 'Message reçu',
         ]);
 
         $response = $this->get('/messages');
@@ -60,7 +60,7 @@ class MessageSystemTest extends TestCase
         $message = Message::factory()->create([
             'sender_id' => $this->receiver->id,
             'receiver_id' => $this->sender->id,
-            'message' => 'Message détaillé'
+            'message' => 'Message détaillé',
         ]);
 
         $response = $this->get("/messages/{$message->id}");
@@ -76,7 +76,7 @@ class MessageSystemTest extends TestCase
             'sender_id' => $this->receiver->id,
             'receiver_id' => $this->sender->id,
             'message' => 'Message à lire',
-            'read' => false
+            'read' => false,
         ]);
 
         $this->get("/messages/{$message->id}");
@@ -91,13 +91,13 @@ class MessageSystemTest extends TestCase
         Message::factory()->create([
             'sender_id' => $this->receiver->id,
             'receiver_id' => $this->sender->id,
-            'read' => false
+            'read' => false,
         ]);
 
         Message::factory()->create([
             'sender_id' => $this->receiver->id,
             'receiver_id' => $this->sender->id,
-            'read' => true
+            'read' => true,
         ]);
 
         $unreadCount = $this->sender->unreadMessages()->count();
@@ -109,7 +109,7 @@ class MessageSystemTest extends TestCase
     {
         $invalidData = [
             'receiver_id' => 999, // Non-existent user
-            'message' => '' // Empty message
+            'message' => '', // Empty message
         ];
 
         $response = $this->post('/messages', $invalidData);
@@ -122,7 +122,7 @@ class MessageSystemTest extends TestCase
     {
         $messageData = [
             'receiver_id' => $this->sender->id,
-            'message' => 'Message à moi-même'
+            'message' => 'Message à moi-même',
         ];
 
         $response = $this->post('/messages', $messageData);
@@ -137,7 +137,7 @@ class MessageSystemTest extends TestCase
 
         $messageData = [
             'receiver_id' => $this->receiver->id,
-            'message' => 'Message sans auth'
+            'message' => 'Message sans auth',
         ];
 
         $response = $this->post('/messages', $messageData);
@@ -152,7 +152,7 @@ class MessageSystemTest extends TestCase
         $otherMessage = Message::factory()->create([
             'sender_id' => $otherUser->id,
             'receiver_id' => $otherUser->id,
-            'message' => 'Message privé'
+            'message' => 'Message privé',
         ]);
 
         $response = $this->get("/messages/{$otherMessage->id}");
@@ -165,7 +165,7 @@ class MessageSystemTest extends TestCase
     {
         $messageData = [
             'receiver_id' => $this->receiver->id,
-            'message' => 'Message avec timestamp'
+            'message' => 'Message avec timestamp',
         ];
 
         $this->post('/messages', $messageData);
@@ -185,14 +185,14 @@ class MessageSystemTest extends TestCase
             'sender_id' => $this->receiver->id,
             'receiver_id' => $this->sender->id,
             'message' => 'Ancien message',
-            'created_at' => now()->subDays(2)
+            'created_at' => now()->subDays(2),
         ]);
 
         $newMessage = Message::factory()->create([
             'sender_id' => $this->receiver->id,
             'receiver_id' => $this->sender->id,
             'message' => 'Nouveau message',
-            'created_at' => now()
+            'created_at' => now(),
         ]);
 
         $response = $this->get('/messages');

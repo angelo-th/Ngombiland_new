@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Transaction;
 
 class CommissionController extends Controller
@@ -14,7 +13,7 @@ class CommissionController extends Controller
         // Fetch all transactions and calculate platform commission (1%)
         $transactions = Transaction::orderBy('created_at', 'desc')->get();
 
-        $totalCommission = $transactions->sum(function($txn) {
+        $totalCommission = $transactions->sum(function ($txn) {
             return $txn->amount * 0.01; // 1% commission
         });
 
@@ -25,19 +24,19 @@ class CommissionController extends Controller
     public function exportCsv()
     {
         $transactions = Transaction::all();
-        $csvHeader = ['ID','User','Type','Amount','Commission','Date'];
-        $csvData = $transactions->map(function($txn){
+        $csvHeader = ['ID', 'User', 'Type', 'Amount', 'Commission', 'Date'];
+        $csvData = $transactions->map(function ($txn) {
             return [
                 $txn->id,
                 $txn->user->name ?? 'Unknown',
                 $txn->type,
                 $txn->amount,
                 $txn->amount * 0.01,
-                $txn->created_at->format('d/m/Y H:i')
+                $txn->created_at->format('d/m/Y H:i'),
             ];
         });
 
-        $filename = "commission_report_" . now()->format('Ymd_His') . ".csv";
+        $filename = 'commission_report_'.now()->format('Ymd_His').'.csv';
         $handle = fopen($filename, 'w+');
         fputcsv($handle, $csvHeader);
 

@@ -3,8 +3,8 @@
 namespace App\Services\Auth;
 
 use App\Models\Auth\OTP;
-use Illuminate\Support\Str;
 use App\Services\MobileMoney\MTNMobileMoneyService;
+use Illuminate\Support\Str;
 
 class OTPService
 {
@@ -33,19 +33,19 @@ class OTPService
 
         return [
             'reference' => $reference,
-            'expires_at' => now()->addMinutes(10)->toDateTimeString()
+            'expires_at' => now()->addMinutes(10)->toDateTimeString(),
         ];
     }
 
     public function verifyOTP(string $phone, string $otp, string $reference)
     {
         $otpRecord = OTP::where('phone', $phone)
-                       ->where('otp', $otp)
-                       ->where('reference', $reference)
-                       ->where('expires_at', '>', now())
-                       ->first();
+            ->where('otp', $otp)
+            ->where('reference', $reference)
+            ->where('expires_at', '>', now())
+            ->first();
 
-        if (!$otpRecord) {
+        if (! $otpRecord) {
             return false;
         }
 

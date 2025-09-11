@@ -2,15 +2,18 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
-use App\Models\User;
 use App\Models\Message;
+use App\Models\User;
+use Livewire\Component;
 
 class AdminChat extends Component
 {
     public $selectedUserId;
+
     public $messageText;
+
     public $users;
+
     public $messages = [];
 
     protected $listeners = ['refreshChat' => '$refresh'];
@@ -24,10 +27,10 @@ class AdminChat extends Component
 
     public function loadMessages()
     {
-        if($this->selectedUserId){
-            $this->messages = Message::where(function($q){
+        if ($this->selectedUserId) {
+            $this->messages = Message::where(function ($q) {
                 $q->where('user_id', $this->selectedUserId)
-                  ->orWhere('sender', 'admin');
+                    ->orWhere('sender', 'admin');
             })->orderBy('created_at')->get();
         }
     }
@@ -40,12 +43,14 @@ class AdminChat extends Component
 
     public function sendMessage()
     {
-        if(!$this->messageText) return;
+        if (! $this->messageText) {
+            return;
+        }
 
         Message::create([
             'user_id' => $this->selectedUserId,
             'sender' => 'admin',
-            'text' => $this->messageText
+            'text' => $this->messageText,
         ]);
 
         $this->messageText = '';

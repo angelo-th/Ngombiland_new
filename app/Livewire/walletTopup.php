@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire;
 
-use Livewire\Component;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class WalletTopup extends Component
 {
@@ -25,6 +25,7 @@ class WalletTopup extends Component
     public function render()
     {
         $wallet = Wallet::firstOrCreate(['user_id' => Auth::id()]);
+
         return view('livewire.wallet-topup', compact('wallet'));
     }
 }

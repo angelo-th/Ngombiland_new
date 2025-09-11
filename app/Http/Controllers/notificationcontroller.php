@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
-use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -11,6 +10,7 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = auth()->user()->notifications()->latest()->get();
+
         return response()->json($notifications);
     }
 
@@ -19,6 +19,7 @@ class NotificationController extends Controller
     {
         $this->authorize('update', $notification); // ensure user owns this notification
         $notification->update(['read' => true]);
+
         return response()->json(['message' => 'Notification marked as read']);
     }
 
