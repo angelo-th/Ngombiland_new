@@ -29,4 +29,25 @@ class Wallet extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+
+    /**
+     * Deduct commission from wallet
+     */
+    public function deductCommission($amount)
+    {
+        $commission = $amount * 0.01; // 1% commission
+        $this->balance -= $commission;
+        $this->save();
+
+        // Create transaction record
+        Transaction::create([
+            'user_id' => $this->user_id,
+            'type' => 'commission',
+            'amount' => $commission,
+            'status' => 'completed',
+            'reference' => \Illuminate\Support\Str::uuid(),
+        ]);
+
+        return $commission;
+    }
 }

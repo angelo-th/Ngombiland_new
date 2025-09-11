@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('investments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('property_id')->constrained()->onDelete('cascade');
+            $table->decimal('amount', 15, 2);
+            $table->decimal('roi', 5, 2)->nullable();
+            $table->enum('status', ['pending', 'active', 'completed', 'cancelled'])->default('pending');
+            $table->timestamp('investment_date')->nullable();
             $table->timestamps();
         });
     }

@@ -25,21 +25,24 @@ class PropertyController extends Controller
             'title'=>'required|string|max:255',
             'description'=>'required|string',
             'type'=>'required|string',
-            'price'=>'required|numeric',
+            'price'=>'required|numeric|min:0',
             'location'=>'required|string',
-            'status'=>'required|string',
+            'latitude'=>'nullable|numeric',
+            'longitude'=>'nullable|numeric',
             'images'=>'nullable|array',
             'images.*'=>'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $property = Property::create([
-            'owner_id'=>auth()->id(),
+            'user_id'=>auth()->id(),
             'title'=>$request->title,
             'description'=>$request->description,
             'type'=>$request->type,
             'price'=>$request->price,
             'location'=>$request->location,
-            'status'=>$request->status
+            'latitude'=>$request->latitude,
+            'longitude'=>$request->longitude,
+            'status'=>'pending'
         ]);
 
         if ($request->hasFile('images')) {
@@ -48,10 +51,10 @@ class PropertyController extends Controller
                 $path = $image->store('properties', 'public');
                 $images[] = $path;
             }
-            $property->update(['images' => json_encode($images)]);
+            $property->update(['images' => $images]);
         }
 
-        return redirect()->route('properties.index')->with('success','Bien créé avec succès');
+        return redirect('/properties')->with('success','Bien créé avec succès');
     }
 
     public function show(Property $property) {
@@ -70,18 +73,28 @@ class PropertyController extends Controller
             'title'=>'required|string|max:255',
             'description'=>'required|string',
             'type'=>'required|string',
-            'price'=>'required|numeric',
+            'price'=>'required|numeric|min:0',
             'location'=>'required|string',
-            'status'=>'required|string'
+            'latitude'=>'nullable|numeric',
+            'longitude'=>'nullable|numeric'
         ]);
 
-        $property->update($request->all());
-        return redirect()->route('properties.index')->with('success','Bien mis à jour');
+        $property->update([
+            'title'=>$request->title,
+            'description'=>$request->description,
+            'type'=>$request->type,
+            'price'=>$request->price,
+            'location'=>$request->location,
+            'latitude'=>$request->latitude,
+            'longitude'=>$request->longitude
+        ]);
+        
+        return redirect('/properties')->with('success','Bien mis à jour');
     }
 
     public function destroy(Property $property) {
         $this->authorize('delete', $property);
         $property->delete();
-        return redirect()->route('properties.index')->with('success','Bien supprimé');
+        return redirect('/properties')->with('success','Bien supprimé');
     }
 }

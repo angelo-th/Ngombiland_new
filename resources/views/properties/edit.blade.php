@@ -1,20 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Ajouter une Propriété - NGOMBILAND')
+@section('title', 'Modifier ' . $property->title . ' - NGOMBILAND')
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Ajouter une Propriété</h1>
-            <p class="mt-2 text-gray-600">Remplissez les informations de votre bien immobilier</p>
+            <h1 class="text-3xl font-bold text-gray-900">Modifier la Propriété</h1>
+            <p class="mt-2 text-gray-600">Modifiez les informations de votre bien immobilier</p>
         </div>
 
         <!-- Form -->
         <div class="bg-white rounded-lg shadow-lg p-6">
-            <form action="{{ route('properties.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('properties.update', $property) }}" method="POST">
                 @csrf
+                @method('PUT')
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Titre -->
@@ -25,7 +26,7 @@
                         <input type="text" 
                                id="title" 
                                name="title" 
-                               value="{{ old('title') }}"
+                               value="{{ old('title', $property->title) }}"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('title') border-red-500 @enderror"
                                required>
                         @error('title')
@@ -43,12 +44,12 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('type') border-red-500 @enderror"
                                 required>
                             <option value="">Sélectionner un type</option>
-                            <option value="maison" {{ old('type') == 'maison' ? 'selected' : '' }}>Maison</option>
-                            <option value="appartement" {{ old('type') == 'appartement' ? 'selected' : '' }}>Appartement</option>
-                            <option value="villa" {{ old('type') == 'villa' ? 'selected' : '' }}>Villa</option>
-                            <option value="terrain" {{ old('type') == 'terrain' ? 'selected' : '' }}>Terrain</option>
-                            <option value="bureau" {{ old('type') == 'bureau' ? 'selected' : '' }}>Bureau</option>
-                            <option value="commerce" {{ old('type') == 'commerce' ? 'selected' : '' }}>Commerce</option>
+                            <option value="maison" {{ old('type', $property->type) == 'maison' ? 'selected' : '' }}>Maison</option>
+                            <option value="appartement" {{ old('type', $property->type) == 'appartement' ? 'selected' : '' }}>Appartement</option>
+                            <option value="villa" {{ old('type', $property->type) == 'villa' ? 'selected' : '' }}>Villa</option>
+                            <option value="terrain" {{ old('type', $property->type) == 'terrain' ? 'selected' : '' }}>Terrain</option>
+                            <option value="bureau" {{ old('type', $property->type) == 'bureau' ? 'selected' : '' }}>Bureau</option>
+                            <option value="commerce" {{ old('type', $property->type) == 'commerce' ? 'selected' : '' }}>Commerce</option>
                         </select>
                         @error('type')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -63,7 +64,7 @@
                         <input type="number" 
                                id="price" 
                                name="price" 
-                               value="{{ old('price') }}"
+                               value="{{ old('price', $property->price) }}"
                                min="0"
                                step="1000"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('price') border-red-500 @enderror"
@@ -81,7 +82,7 @@
                         <input type="text" 
                                id="location" 
                                name="location" 
-                               value="{{ old('location') }}"
+                               value="{{ old('location', $property->location) }}"
                                placeholder="Ex: Douala, Cameroun"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('location') border-red-500 @enderror"
                                required>
@@ -98,7 +99,7 @@
                         <input type="number" 
                                id="latitude" 
                                name="latitude" 
-                               value="{{ old('latitude') }}"
+                               value="{{ old('latitude', $property->latitude) }}"
                                step="any"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('latitude') border-red-500 @enderror">
                         @error('latitude')
@@ -114,7 +115,7 @@
                         <input type="number" 
                                id="longitude" 
                                name="longitude" 
-                               value="{{ old('longitude') }}"
+                               value="{{ old('longitude', $property->longitude) }}"
                                step="any"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('longitude') border-red-500 @enderror">
                         @error('longitude')
@@ -131,25 +132,8 @@
                                   name="description" 
                                   rows="4"
                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('description') border-red-500 @enderror"
-                                  required>{{ old('description') }}</textarea>
+                                  required>{{ old('description', $property->description) }}</textarea>
                         @error('description')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Images -->
-                    <div class="md:col-span-2">
-                        <label for="images" class="block text-sm font-medium text-gray-700 mb-2">
-                            Images
-                        </label>
-                        <input type="file" 
-                               id="images" 
-                               name="images[]" 
-                               multiple
-                               accept="image/*"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('images') border-red-500 @enderror">
-                        <p class="mt-1 text-sm text-gray-500">Sélectionnez une ou plusieurs images (max 2MB chacune)</p>
-                        @error('images')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -157,13 +141,13 @@
 
                 <!-- Actions -->
                 <div class="flex justify-end space-x-4 mt-8">
-                    <a href="{{ route('properties.index') }}" 
+                    <a href="{{ route('properties.show', $property) }}" 
                        class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                         Annuler
                     </a>
                     <button type="submit" 
                             class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        Créer la propriété
+                        Mettre à jour
                     </button>
                 </div>
             </form>

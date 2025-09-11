@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -66,15 +67,24 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'name' => $data['first_name'] . ' ' . $data['last_name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
-            'role' => 'client', // Définir le rôle par défaut
+            'role' => $data['role'] ?? 'client', // Utiliser le rôle fourni ou 'client' par défaut
         ]);
+
+        // Créer automatiquement un wallet pour l'utilisateur
+        $user->wallet()->create([
+            'balance' => 0,
+            'currency' => 'XAF',
+            'status' => 'active'
+        ]);
+
+        return $user;
     }
 
     /**
@@ -97,7 +107,7 @@ class RegisterController extends Controller
 
         return $request->wantsJson()
                     ? new JsonResponse([], 201)
-                    : redirect($this->redirectPath());
+                    : redirect($this->redirectTo);
     }
 
     /**

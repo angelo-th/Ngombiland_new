@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -26,9 +26,13 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'phone' => '+237' . fake()->numerify('########'),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role' => fake()->randomElement(['client', 'proprietor', 'investor', 'agent']),
+            'first_name' => fake()->firstName(),
+            'last_name' => fake()->lastName(),
         ];
     }
 
@@ -39,6 +43,47 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Create an admin user
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+            'email' => 'admin@ngombiland.cm',
+        ]);
+    }
+
+    /**
+     * Create a proprietor user
+     */
+    public function proprietor(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'proprietor',
+        ]);
+    }
+
+    /**
+     * Create an investor user
+     */
+    public function investor(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'investor',
+        ]);
+    }
+
+    /**
+     * Create a client user
+     */
+    public function client(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'client',
         ]);
     }
 }

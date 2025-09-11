@@ -82,14 +82,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/{report}', [ReportController::class, 'show'])->name('reports.show');
 
     // Properties Routes (authentifiés)
+    Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
     Route::resource('properties', PropertyController::class)->except(['index', 'show']);
     Route::post('properties/{id}/upload-documents', [PropertyController::class, 'uploadDocuments'])->name('properties.upload');
 
     // Investments Routes
-    Route::resource('investments', InvestmentController::class);
+    Route::get('/investments', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'userInvestments'])->name('investments.index');
+    Route::resource('investments', InvestmentController::class)->except(['index']);
+    
+    // Crowdfunding Routes
+    Route::get('/crowdfunding', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'index'])->name('crowdfunding.index');
+    Route::post('/crowdfunding/{property}/invest', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'invest'])->name('crowdfunding.invest');
 });
 
 // ======================= 👑 ADMIN =======================
+Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard')->middleware(['auth', 'admin']);
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');

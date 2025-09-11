@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->decimal('balance', 15, 2)->default(0);
+            $table->string('currency', 3)->default('XAF');
+            $table->enum('status', ['active', 'suspended', 'closed'])->default('active');
             $table->timestamps();
+            
+            $table->unique('user_id');
         });
     }
 
@@ -25,17 +31,3 @@ return new class extends Migration
         Schema::dropIfExists('wallets');
     }
 };
-Schema::create('wallets', function(Blueprint $table){
-    $table->id();
-    $table->foreignId('user_id')->constrained()->onDelete('cascade');
-    $table->decimal('balance',15,2)->default(0);
-    $table->timestamps();
-});
-$table->unique('user_id');
- // Wallets table
-        Schema::create('wallets', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('balance', 15, 2)->default(0); // User wallet balance
-            $table->timestamps();
-        });

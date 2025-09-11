@@ -1,3 +1,4 @@
+<?php
 // app/Http/Controllers/PropertyController.php
 
 namespace App\Http\Controllers;

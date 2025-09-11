@@ -7,108 +7,73 @@ use Illuminate\Http\Request;
 use App\Models\Investment;
 use App\Models\Property;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Wallet;
 
 class CrowdfundingController extends Controller
 {
-    // Show crowdfunding projects
     public function index()
     {
         $projects = Property::where('is_crowdfundable', true)->with('investments')->get();
         return view('crowdfunding.index', compact('projects'));
     }
 
-    // Invest in a project
     public function invest(Request $request, Property $property)
     {
         $request->validate([
             'amount' => 'required|numeric|min:1000'
         ]);
 
-        // Check if user has enough wallet balance
-        $walletBalance = Auth::user()->walletBalance();
+        $user = Auth::user();
+        $wallet = $user->wallet;
 
-        if($walletBalance < $request->amount){
+        if (!$wallet || $wallet->balance < $request->amount) {
             return back()->with('error', 'Insufficient wallet balance.');
         }
 
-        // Deduct wallet balance (Transaction)
-        $transaction = Auth::user()->debitWallet($request->amount, "Investment in {$property->title}");
-
-        // Record investment
-        Investment::create([
-            'user_id' => Auth::id(),
-            'property_id' => $property->id,
-            'amount' => $request->amount,
-            'roi' => $property->expected_roi,
-        ]);
-
-        return back()->with('success', "Investment successful for {$property->title}.");
-    }
-}
-// app/Http/Controllers/CrowdfundingController.php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\Investment;
-use App\Models\Wallet;
-use App\Models\Property;
-use Illuminate\Support\Facades\DB;
-
-class CrowdfundingController extends Controller
-{
-    // Invest in a property
-    public function invest(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'property_id' => 'required|exists:properties,id',
-            'amount' => 'required|numeric|min:1',
-        ]);
-
-        $wallet = Wallet::where('user_id', $request->user_id)->firstOrFail();
-
-        if($wallet->balance < $request->amount){
-            return response()->json(['error' => 'Insufficient balance'], 400);
-        }
-
-        DB::transaction(function () use ($request, $wallet) {
-            // Deduct from wallet
+        DB::transaction(function () use ($request, $property, $user, $wallet) {
+            // Débiter le portefeuille
             $wallet->balance -= $request->amount;
             $wallet->save();
 
-            // Create investment record
-            Investment::create([
-                'user_id' => $request->user_id,
-                'property_id' => $request->property_id,
+            // Créer la transaction
+            \App\Models\Transaction::create([
+                'user_id' => $user->id,
+                'type' => 'investment',
                 'amount' => $request->amount,
-                'status' => 'active'
+                'status' => 'completed',
+                'reference' => \Illuminate\Support\Str::uuid(),
+            ]);
+
+            // Créer l'investissement
+            Investment::create([
+                'user_id' => $user->id,
+                'property_id' => $property->id,
+                'amount' => $request->amount,
+                'roi' => $property->expected_roi,
+                'status' => 'active',
+                'investment_date' => now(),
             ]);
         });
 
-        return response()->json(['message' => 'Investment successful'], 200);
+        return back()->with('success', "Investment successful for {$property->title}.");
     }
 
-    // Calculate ROI for a property
-    public function calculateROI($propertyId)
+    public function calculateROI(Property $property)
     {
-        $investments = Investment::where('property_id', $propertyId)->where('status', 'active')->get();
-        $totalInvestment = $investments->sum('amount');
-        $roiPercentage = 10; // Example: fixed 10% ROI
+        $roiPercentage = $property->expected_roi ?? 0;
+        return response()->json(['roi_percentage' => $roiPercentage], 200);
+    }
 
-        foreach($investments as $investment){
-            $investment->roi = ($investment->amount / $totalInvestment) * $roiPercentage;
-            $investment->save();
+    public function userInvestments(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $investments = $user->investments()->with('property')->get();
+            return view('crowdfunding.my_investments', compact('investments'));
+        } catch (\Exception $e) {
+            \Log::error('Error in userInvestments: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
         }
-
-        return response()->json(['message' => 'ROI calculated successfully'], 200);
-    }
-
-    // Get user's investments
-    public function userInvestments($userId)
-    {
-        $investments = Investment::with('property')->where('user_id', $userId)->get();
-        return response()->json($investments, 200);
     }
 }
-// app/Http/Controllers/CrowdfundingController.php
