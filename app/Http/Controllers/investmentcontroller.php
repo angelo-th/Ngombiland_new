@@ -12,9 +12,21 @@ class InvestmentController extends Controller
     // Display all investments for the logged-in user
     public function index()
     {
-        $investments = Investment::where('user_id', Auth::id())->with('property')->get();
+        $investments = Investment::where('user_id', Auth::id())->with('property')->paginate(12);
 
-        return view('dashboard.investments', compact('investments'));
+        return view('investments.index', compact('investments'));
+    }
+
+    // Show specific investment
+    public function show(Investment $investment)
+    {
+        // Vérifier que l'investissement appartient à l'utilisateur
+        if ($investment->user_id !== Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        $investment->load('property');
+        return view('investments.show', compact('investment'));
     }
 
     // Show form to create new investment

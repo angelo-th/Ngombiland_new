@@ -115,6 +115,17 @@ class RegisterController extends Controller
      */
     protected function registered(Request $request, $user)
     {
-        //
+        // Rediriger selon le rôle de l'utilisateur
+        switch ($user->role) {
+            case 'admin':
+                return redirect()->route('admin.dashboard');
+            case 'agent':
+                return redirect()->route('agent.dashboard');
+            case 'proprietor':
+            case 'investor':
+            case 'client':
+            default:
+                return redirect()->route('dashboard');
+        }
     }
 }

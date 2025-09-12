@@ -105,4 +105,29 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function crowdfundingProjects()
+    {
+        return $this->hasMany(CrowdfundingProject::class);
+    }
+
+    public function crowdfundingInvestments()
+    {
+        return $this->hasMany(CrowdfundingInvestment::class);
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function receivedMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
 }

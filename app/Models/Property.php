@@ -35,9 +35,4 @@ class Property extends Model
         return $this->hasMany(Investment::class);
     }
 
-    // Accessor pour s'assurer que owner n'est jamais null
-    public function getOwnerAttribute()
-    {
-        return $this->owner() ?? new User(['name' => 'Propriétaire inconnu', 'email' => 'N/A']);
-    }
 }

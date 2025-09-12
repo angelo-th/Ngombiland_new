@@ -18,12 +18,12 @@
                     <div class="card-body text-center">
                         <div class="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <span class="text-3xl font-bold text-primary-600">
-                                {{ substr(auth()->user()->name, 0, 1) }}
+                                {{ substr(auth()->user()?->name ?? 'U', 0, 1) }}
                             </span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ auth()->user()->name }}</h3>
-                        <p class="text-gray-600 mb-4">{{ auth()->user()->email }}</p>
-                        <span class="badge badge-primary">{{ ucfirst(auth()->user()->role) }}</span>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ auth()->user()?->name ?? 'Utilisateur' }}</h3>
+                        <p class="text-gray-600 mb-4">{{ auth()->user()?->email ?? 'Email non disponible' }}</p>
+                        <span class="badge badge-primary">{{ ucfirst(auth()->user()?->role ?? 'client') }}</span>
                     </div>
                 </div>
 
@@ -72,27 +72,27 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="form-label">Prénom</label>
-                                <div class="form-input bg-gray-50">{{ auth()->user()->first_name ?? 'Non renseigné' }}</div>
+                                <div class="form-input bg-gray-50">{{ auth()->user()?->first_name ?? 'Non renseigné' }}</div>
                             </div>
                             <div>
                                 <label class="form-label">Nom</label>
-                                <div class="form-input bg-gray-50">{{ auth()->user()->last_name ?? 'Non renseigné' }}</div>
+                                <div class="form-input bg-gray-50">{{ auth()->user()?->last_name ?? 'Non renseigné' }}</div>
                             </div>
                             <div>
                                 <label class="form-label">Email</label>
-                                <div class="form-input bg-gray-50">{{ auth()->user()->email }}</div>
+                                <div class="form-input bg-gray-50">{{ auth()->user()?->email ?? 'Email non disponible' }}</div>
                             </div>
                             <div>
                                 <label class="form-label">Téléphone</label>
-                                <div class="form-input bg-gray-50">{{ auth()->user()->phone ?? 'Non renseigné' }}</div>
+                                <div class="form-input bg-gray-50">{{ auth()->user()?->phone ?? 'Non renseigné' }}</div>
                             </div>
                             <div>
                                 <label class="form-label">Rôle</label>
-                                <div class="form-input bg-gray-50">{{ ucfirst(auth()->user()->role) }}</div>
+                                <div class="form-input bg-gray-50">{{ ucfirst(auth()->user()?->role ?? 'client') }}</div>
                             </div>
                             <div>
                                 <label class="form-label">Membre depuis</label>
-                                <div class="form-input bg-gray-50">{{ auth()->user()->created_at->format('d/m/Y') }}</div>
+                                <div class="form-input bg-gray-50">{{ auth()->user()?->created_at?->format('d/m/Y') ?? 'Date inconnue' }}</div>
                             </div>
                         </div>
                         <div class="mt-6">
@@ -120,7 +120,7 @@
                             <div class="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <i class="fas fa-chart-line text-secondary-600 text-xl"></i>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ auth()->user()->investments->count() }}</h3>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ auth()->user()->investments?->count() ?? 0 }}</h3>
                             <p class="text-gray-600">Investissements</p>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                             <div class="w-12 h-12 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <i class="fas fa-envelope text-accent-600 text-xl"></i>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ auth()->user()->receivedMessages->count() }}</h3>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ auth()->user()->receivedMessages?->count() ?? 0 }}</h3>
                             <p class="text-gray-600">Messages</p>
                         </div>
                     </div>

@@ -7,8 +7,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvestmentController;
+use App\Http\Controllers\CrowdfundingController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\ReportController;
@@ -61,6 +63,7 @@ Route::post('/email/resend', [VerificationController::class, 'resend'])->name('v
 // ======================= 🖥️ DASHBOARD (AUTHENTIFIÉ) =======================
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/agent/dashboard', [DashboardController::class, 'agentDashboard'])->name('agent.dashboard');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     // Wallet Routes
@@ -71,7 +74,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
 
     // Messages Routes
-    Route::get('/messages', [MessageController::class, 'index'])->name('messages');
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/create', [MessageController::class, 'create'])->name('messages.create');
     Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 
@@ -80,6 +84,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/create/{property}', [ReportController::class, 'create'])->name('reports.create');
     Route::post('/reports/{property}', [ReportController::class, 'store'])->name('reports.store');
     Route::get('/reports/{report}', [ReportController::class, 'show'])->name('reports.show');
+
+    // Favorites Routes
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/{property}', [FavoriteController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{property}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+
+    // Investments Routes
+    Route::get('/investments', [InvestmentController::class, 'index'])->name('investments.index');
+    Route::get('/investments/{investment}', [InvestmentController::class, 'show'])->name('investments.show');
 
     // Properties Routes (authentifiés)
     Route::resource('properties', PropertyController::class)->except(['index', 'show']);
@@ -90,8 +103,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('investments', InvestmentController::class)->except(['index']);
 
     // Crowdfunding Routes
-    Route::get('/crowdfunding', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'index'])->name('crowdfunding.index');
-    Route::post('/crowdfunding/{property}/invest', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'invest'])->name('crowdfunding.invest');
+    Route::resource('crowdfunding', CrowdfundingController::class);
+    Route::post('/crowdfunding/{crowdfunding}/invest', [CrowdfundingController::class, 'invest'])->name('crowdfunding.invest');
+    Route::post('/crowdfunding/{crowdfunding}/activate', [CrowdfundingController::class, 'activate'])->name('crowdfunding.activate');
 
     // Messages Routes
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');

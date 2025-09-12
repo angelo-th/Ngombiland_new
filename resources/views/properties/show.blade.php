@@ -13,115 +13,133 @@
                     <p class="mt-2 text-gray-600">{{ $property->location }}</p>
                 </div>
                 <div class="flex space-x-4">
+                    @can('update', $property)
                     <a href="{{ route('properties.edit', $property) }}" 
-                       class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                       class="btn btn-primary">
+                        <i class="fas fa-edit mr-2"></i>
                         Modifier
                     </a>
+                    @endcan
                     <a href="{{ route('properties.index') }}" 
-                       class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                       class="btn btn-outline">
+                        <i class="fas fa-arrow-left mr-2"></i>
                         Retour
                     </a>
                 </div>
             </div>
         </div>
 
+        <!-- Property Details -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Images -->
+            <!-- Main Content -->
             <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <!-- Images -->
+                <div class="mb-8">
                     @if($property->images && count($property->images) > 0)
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @foreach($property->images as $image)
-                            <div class="aspect-w-16 aspect-h-12">
                                 <img src="{{ asset('storage/' . $image) }}" 
                                      alt="{{ $property->title }}" 
-                                     class="w-full h-48 object-cover rounded-lg">
-                            </div>
+                                     class="w-full h-64 object-cover rounded-lg">
                             @endforeach
                         </div>
                     @else
-                        <div class="h-64 bg-gray-200 flex items-center justify-center">
-                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
+                        <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-home text-6xl text-gray-400"></i>
                         </div>
                     @endif
                 </div>
 
                 <!-- Description -->
-                <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Description</h2>
-                    <p class="text-gray-700 leading-relaxed">{{ $property->description }}</p>
+                <div class="card mb-8">
+                    <div class="card-header">
+                        <h2 class="text-xl font-semibold">Description</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-gray-700">{{ $property->description }}</p>
+                    </div>
+                </div>
+
+                <!-- Property Details -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-xl font-semibold">Détails de la propriété</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Type</h3>
+                                <p class="text-gray-600">{{ ucfirst($property->type) }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Prix</h3>
+                                <p class="text-2xl font-bold text-blue-600">
+                                    {{ number_format($property->price, 0, ',', ' ') }} FCFA
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Localisation</h3>
+                                <p class="text-gray-600">{{ $property->location }}</p>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">Statut</h3>
+                                <span class="badge {{ $property->status === 'approved' ? 'badge-success' : 'badge-warning' }}">
+                                    {{ ucfirst($property->status) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Details -->
+            <!-- Sidebar -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-8">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Détails</h2>
-                    
-                    <div class="space-y-4">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Prix:</span>
-                            <span class="font-semibold text-lg text-blue-600">
-                                {{ number_format($property->price) }} FCFA
-                            </span>
-                        </div>
-                        
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Type:</span>
-                            <span class="font-medium capitalize">{{ $property->type }}</span>
-                        </div>
-                        
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Statut:</span>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                @if($property->status === 'published') bg-green-100 text-green-800
-                                @elseif($property->status === 'pending') bg-yellow-100 text-yellow-800
-                                @elseif($property->status === 'sold') bg-blue-100 text-blue-800
-                                @else bg-gray-100 text-gray-800
-                                @endif">
-                                {{ ucfirst($property->status) }}
-                            </span>
-                        </div>
-                        
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Localisation:</span>
-                            <span class="font-medium">{{ $property->location }}</span>
-                        </div>
-                        
-                        @if($property->latitude && $property->longitude)
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Coordonnées:</span>
-                            <span class="font-mono text-sm">
-                                {{ $property->latitude }}, {{ $property->longitude }}
-                            </span>
-                        </div>
-                        @endif
-                        
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Créé le:</span>
-                            <span class="font-medium">{{ $property->created_at->format('d/m/Y') }}</span>
+                <!-- Owner Info -->
+                <div class="card mb-6">
+                    <div class="card-header">
+                        <h3 class="text-lg font-semibold">Propriétaire</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                <span class="text-blue-600 font-semibold">
+                                    {{ substr($property->owner->name ?? 'P', 0, 1) }}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="font-semibold">{{ $property->owner->name ?? 'Propriétaire' }}</p>
+                                <p class="text-sm text-gray-600">{{ $property->owner->email ?? '' }}</p>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Actions -->
-                    <div class="mt-8 space-y-3">
-                        <a href="{{ route('properties.edit', $property) }}" 
-                           class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center block">
-                            Modifier la propriété
+                <!-- Contact Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-lg font-semibold">Contact</h3>
+                    </div>
+                    <div class="card-body space-y-3">
+                        @if($property->owner)
+                        <a href="{{ route('messages.create', ['receiver_id' => $property->owner->id]) }}" 
+                           class="btn btn-primary w-full">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Envoyer un message
                         </a>
-                        
-                        <form action="{{ route('properties.destroy', $property) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" 
-                                    class="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
-                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette propriété ?')">
-                                Supprimer la propriété
-                            </button>
-                        </form>
+                        @else
+                        <button class="btn btn-primary w-full" disabled>
+                            <i class="fas fa-envelope mr-2"></i>
+                            Propriétaire non disponible
+                        </button>
+                        @endif
+                        <button class="btn btn-outline w-full">
+                            <i class="fas fa-heart mr-2"></i>
+                            Ajouter aux favoris
+                        </button>
+                        <button class="btn btn-outline w-full">
+                            <i class="fas fa-share mr-2"></i>
+                            Partager
+                        </button>
                     </div>
                 </div>
             </div>

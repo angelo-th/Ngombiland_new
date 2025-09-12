@@ -116,7 +116,7 @@ class UserAuthenticationTest extends TestCase
         ];
 
         $response = $this->post('/register', $userData);
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/admin');
 
         $this->assertDatabaseHas('users', [
             'email' => 'testadmin@example.com',
@@ -138,7 +138,7 @@ class UserAuthenticationTest extends TestCase
         ];
 
         $response = $this->post('/register', $userData);
-        $response->assertRedirect('/dashboard');
+        $response->assertRedirect('/agent/dashboard');
 
         $this->assertDatabaseHas('users', [
             'email' => 'testagent@example.com',

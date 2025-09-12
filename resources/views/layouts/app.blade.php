@@ -42,9 +42,9 @@
                     <a href="{{ route('messages.index') }}" class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}">
                         <i class="fas fa-envelope mr-2"></i>
                         Messages
-                        @if(auth()->check() && auth()->user()->unread_messages_count > 0)
+                        @if(auth()->check() && auth()->user()?->unread_messages_count > 0)
                             <span class="ml-1 badge badge-error">
-                                {{ auth()->user()->unread_messages_count }}
+                                {{ auth()->user()?->unread_messages_count }}
                             </span>
                         @endif
                     </a>
@@ -64,10 +64,10 @@
                         <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
                             <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                                 <span class="text-blue-600 font-semibold text-sm">
-                                    {{ substr(auth()->user()->name, 0, 1) }}
+                                    {{ substr(auth()->user()?->name ?? 'U', 0, 1) }}
                                 </span>
                             </div>
-                            <span class="hidden md:block font-medium">{{ auth()->user()->name }}</span>
+                            <span class="hidden md:block font-medium">{{ auth()->user()?->name ?? 'Utilisateur' }}</span>
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
 
