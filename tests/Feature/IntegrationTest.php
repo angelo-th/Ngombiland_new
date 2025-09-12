@@ -307,7 +307,10 @@ class IntegrationTest extends TestCase
             'status' => 'pending',
         ]);
 
-        // Test public property listing
+        // Test public property listing (authenticated user)
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        
         $response = $this->get('/properties');
         $response->assertStatus(200);
         $response->assertSee('Villa à Douala');

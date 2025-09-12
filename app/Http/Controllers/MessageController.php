@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -44,11 +46,19 @@ class MessageController extends Controller
             return back()->withErrors(['receiver_id' => 'Vous ne pouvez pas vous envoyer un message à vous-même.']);
         }
 
-        Message::create([
+        $message = Message::create([
             'sender_id' => auth()->id(),
             'receiver_id' => $request->receiver_id,
             'message' => $request->message,
         ]);
+
+        // Envoyer une notification au destinataire
+        $sender = auth()->user();
+        NotificationService::sendMessageNotification(
+            $request->receiver_id,
+            $sender->name,
+            Str::limit($request->message, 50)
+        );
 
         return redirect('/messages')->with('success', 'Message envoyé avec succès');
     }

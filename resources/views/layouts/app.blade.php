@@ -57,12 +57,7 @@
                 <!-- User Menu -->
                 <div class="flex items-center space-x-4">
                     <!-- Notifications -->
-                    <div class="relative">
-                        <button class="p-2 text-gray-400 hover:text-gray-600 relative">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 badge badge-error">3</span>
-                        </button>
-                    </div>
+                    @livewire('notification-center')
 
                     <!-- User Dropdown -->
                     <div class="relative" x-data="{ open: false }">

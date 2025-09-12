@@ -7,9 +7,61 @@ use Illuminate\Http\Request;
 
 class PropertyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $properties = Property::with('owner')->latest()->paginate(12);
+        $query = Property::with('owner');
+
+        // Filtres de recherche
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtre par type
+        if ($request->filled('type')) {
+            $query->where('type', $request->get('type'));
+        }
+
+        // Filtre par statut
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        // Filtre par prix
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->get('min_price'));
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->get('max_price'));
+        }
+
+        // Filtre par localisation
+        if ($request->filled('city')) {
+            $query->where('location', 'like', "%{$request->get('city')}%");
+        }
+
+        // Tri
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            default:
+                $query->latest();
+                break;
+        }
+
+        $properties = $query->paginate(12)->withQueryString();
 
         // Si l'utilisateur est authentifié, utiliser la vue privée
         if (auth()->check()) {
