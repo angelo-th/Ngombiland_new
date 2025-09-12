@@ -82,7 +82,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reports/{report}', [ReportController::class, 'show'])->name('reports.show');
 
     // Properties Routes (authentifiés)
-    Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
     Route::resource('properties', PropertyController::class)->except(['index', 'show']);
     Route::post('properties/{id}/upload-documents', [PropertyController::class, 'uploadDocuments'])->name('properties.upload');
 
@@ -99,6 +98,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/messages/{message}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
     Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
+
+    // Profile Routes
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 });
 
 // ======================= 👑 ADMIN =======================

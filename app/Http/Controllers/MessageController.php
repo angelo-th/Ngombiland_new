@@ -19,6 +19,11 @@ class MessageController extends Controller
 
     public function show(Message $message)
     {
+        // Vérifier que l'utilisateur peut voir ce message
+        if ($message->sender_id !== auth()->id() && $message->receiver_id !== auth()->id()) {
+            abort(403, 'Non autorisé');
+        }
+
         // Marquer le message comme lu
         if ($message->receiver_id === auth()->id()) {
             $message->update(['read' => true]);
@@ -30,9 +35,14 @@ class MessageController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'receiver_id' => 'required|exists:users,id|different:'.auth()->id(),
+            'receiver_id' => 'required|exists:users,id',
             'message' => 'required|string|max:1000',
         ]);
+
+        // Vérifier que l'utilisateur ne s'envoie pas un message à lui-même
+        if ($request->receiver_id == auth()->id()) {
+            return back()->withErrors(['receiver_id' => 'Vous ne pouvez pas vous envoyer un message à vous-même.']);
+        }
 
         Message::create([
             'sender_id' => auth()->id(),

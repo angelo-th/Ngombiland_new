@@ -27,16 +27,8 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
 
-            // Redirect based on role
-            $role = Auth::user()->role;
-
-            if ($role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            } elseif ($role === 'agent') {
-                return redirect()->route('agent.dashboard');
-            } else {
-                return redirect()->route('client.dashboard');
-            }
+            // Redirect to dashboard
+            return redirect()->route('dashboard');
         }
 
         // Failed login
@@ -52,6 +44,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/');
     }
 }

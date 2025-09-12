@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="container mx-auto">
         <!-- Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Bienvenue, {{ auth()->user()->name }} !</h1>
@@ -13,205 +13,229 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
+            <div class="card">
+                <div class="card-body">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-home text-primary-600 text-xl"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Mes Propriétés</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['properties_count'] }}</p>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Mes Propriétés</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ $stats['properties'] ?? 0 }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
+            <div class="card">
+                <div class="card-body">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-chart-line text-secondary-600 text-xl"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Mes Investissements</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['investments_count'] }}</p>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Investissements</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ $stats['investments'] ?? 0 }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                            </svg>
+            <div class="card">
+                <div class="card-body">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-accent-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-wallet text-accent-600 text-xl"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Messages Non Lus</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ $stats['unread_messages'] }}</p>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Solde</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['balance'] ?? 0) }} FCFA</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                            </svg>
+            <div class="card">
+                <div class="card-body">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-info-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-envelope text-info-600 text-xl"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Solde Portefeuille</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['wallet_balance']) }} FCFA</p>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-500">Messages</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ $stats['messages'] ?? 0 }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <a href="{{ route('properties.create') }}" 
-               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Actions Rapides -->
+            <div class="lg:col-span-2">
+                <div class="card mb-6">
+                    <div class="card-header">
+                        <h2 class="text-xl font-semibold text-gray-900">Actions Rapides</h2>
                     </div>
-                    <div>
-                        <p class="font-medium text-gray-900">Ajouter Propriété</p>
-                        <p class="text-sm text-gray-500">Publier une annonce</p>
-                    </div>
-                </div>
-            </a>
+                    <div class="card-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <a href="{{ route('properties.create') }}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-plus text-primary-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900">Ajouter une propriété</h3>
+                                    <p class="text-sm text-gray-600">Publiez votre bien immobilier</p>
+                                </div>
+                            </a>
 
-            <a href="{{ route('crowdfunding.index') }}" 
-               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-900">Investir</p>
-                        <p class="text-sm text-gray-500">Projets crowdfunding</p>
-                    </div>
-                </div>
-            </a>
+                            <a href="{{ route('crowdfunding.index') }}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-users text-secondary-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900">Investir</h3>
+                                    <p class="text-sm text-gray-600">Découvrir les projets</p>
+                                </div>
+                            </a>
 
-            <a href="{{ route('messages.index') }}" 
-               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
-                        <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-900">Messages</p>
-                        <p class="text-sm text-gray-500">Voir conversations</p>
-                    </div>
-                </div>
-            </a>
+                            <a href="/wallet" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="w-12 h-12 bg-accent-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-wallet text-accent-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900">Mon portefeuille</h3>
+                                    <p class="text-sm text-gray-600">Gérer mes finances</p>
+                                </div>
+                            </a>
 
-            <a href="/wallet" 
-               class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                <div class="flex items-center">
-                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-900">Portefeuille</p>
-                        <p class="text-sm text-gray-500">Gérer mon solde</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Recent Properties -->
-            @if($recent_properties->count() > 0)
-            <div class="bg-white rounded-lg shadow-lg">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Mes Propriétés Récentes</h3>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-4">
-                        @foreach($recent_properties as $property)
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900">{{ Str::limit($property->title, 30) }}</p>
-                                <p class="text-sm text-gray-500">{{ number_format($property->price) }} FCFA</p>
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                {{ $property->created_at->diffForHumans() }}
-                            </div>
+                            <a href="{{ route('messages.index') }}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="w-12 h-12 bg-info-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-envelope text-info-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-medium text-gray-900">Messages</h3>
+                                    <p class="text-sm text-gray-600">Voir mes conversations</p>
+                                </div>
+                            </a>
                         </div>
-                        @endforeach
                     </div>
-                    <div class="mt-4">
-                        <a href="{{ route('properties.index') }}" 
-                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            Voir toutes mes propriétés →
-                        </a>
+                </div>
+
+                <!-- Propriétés récentes -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-xl font-semibold text-gray-900">Mes Propriétés Récentes</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="space-y-4">
+                            @forelse($recent_properties ?? [] as $property)
+                            <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                                <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-home text-primary-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-900">{{ $property->title }}</h4>
+                                    <p class="text-sm text-gray-600">{{ $property->location }} • {{ number_format($property->price) }} FCFA</p>
+                                </div>
+                                <span class="badge badge-{{ $property->status === 'active' ? 'success' : 'warning' }}">
+                                    {{ ucfirst($property->status) }}
+                                </span>
+                            </div>
+                            @empty
+                            <div class="text-center py-8">
+                                <i class="fas fa-home text-gray-400 text-4xl mb-4"></i>
+                                <p class="text-gray-600 mb-4">Aucune propriété ajoutée</p>
+                                <a href="{{ route('properties.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Ajouter ma première propriété
+                                </a>
+                            </div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
-            @endif
 
-            <!-- Recent Investments -->
-            @if($recent_investments->count() > 0)
-            <div class="bg-white rounded-lg shadow-lg">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Mes Investissements Récents</h3>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-4">
-                        @foreach($recent_investments as $investment)
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                </svg>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900">{{ Str::limit($investment->property->title, 30) }}</p>
-                                <p class="text-sm text-gray-500">{{ number_format($investment->amount) }} FCFA</p>
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                {{ $investment->created_at->diffForHumans() }}
-                            </div>
-                        </div>
-                        @endforeach
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Messages récents -->
+                <div class="card mb-6">
+                    <div class="card-header">
+                        <h2 class="text-xl font-semibold text-gray-900">Messages Récents</h2>
                     </div>
-                    <div class="mt-4">
-                        <a href="{{ route('investments.index') }}" 
-                           class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            Voir tous mes investissements →
-                        </a>
+                    <div class="card-body">
+                        <div class="space-y-4">
+                            @forelse($recent_messages ?? [] as $message)
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <span class="text-sm font-medium text-gray-600">
+                                        {{ substr($message->sender->name, 0, 1) }}
+                                    </span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900">{{ $message->sender->name }}</p>
+                                    <p class="text-sm text-gray-600 truncate">{{ Str::limit($message->message, 50) }}</p>
+                                    <p class="text-xs text-gray-500">{{ $message->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="text-center py-4">
+                                <i class="fas fa-envelope text-gray-400 text-2xl mb-2"></i>
+                                <p class="text-gray-600 text-sm">Aucun message</p>
+                            </div>
+                            @endforelse
+                        </div>
+                        <div class="mt-4">
+                            <a href="{{ route('messages.index') }}" class="btn btn-outline w-full">
+                                Voir tous les messages
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Investissements récents -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-xl font-semibold text-gray-900">Investissements Récents</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="space-y-4">
+                            @forelse($recent_investments ?? [] as $investment)
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-secondary-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-chart-line text-secondary-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900">{{ $investment->property->title }}</p>
+                                    <p class="text-sm text-gray-600">{{ number_format($investment->amount) }} FCFA</p>
+                                </div>
+                                <span class="badge badge-success">{{ $investment->roi }}%</span>
+                            </div>
+                            @empty
+                            <div class="text-center py-4">
+                                <i class="fas fa-chart-line text-gray-400 text-2xl mb-2"></i>
+                                <p class="text-gray-600 text-sm">Aucun investissement</p>
+                            </div>
+                            @endforelse
+                        </div>
+                        <div class="mt-4">
+                            <a href="{{ route('crowdfunding.index') }}" class="btn btn-outline w-full">
+                                Découvrir les projets
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-            @endif
         </div>
     </div>
 </div>

@@ -103,7 +103,6 @@ class IntegrationTest extends TestCase
             'latitude' => 4.0483,
             'longitude' => 9.7043,
             'type' => 'villa',
-            'images' => ['villa1.jpg', 'villa2.jpg'],
         ];
 
         $response = $this->post('/properties', $propertyData);
@@ -116,7 +115,12 @@ class IntegrationTest extends TestCase
         // 2. Update property
         $updateData = [
             'title' => 'Villa moderne à Douala - Mise à jour',
+            'description' => 'Belle villa de 4 chambres - Mise à jour',
+            'type' => 'villa',
             'price' => 80000000,
+            'location' => 'Douala, Cameroun',
+            'latitude' => 4.0483,
+            'longitude' => 9.7043,
         ];
 
         $updateResponse = $this->put("/properties/{$property->id}", $updateData);
@@ -270,8 +274,14 @@ class IntegrationTest extends TestCase
     /** @test */
     public function property_search_and_filtering_works()
     {
+        // Create users first
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+        $user3 = User::factory()->create();
+
         // Create properties with different types and locations
         Property::factory()->create([
+            'user_id' => $user1->id,
             'title' => 'Villa à Douala',
             'type' => 'villa',
             'price' => 50000000,
@@ -280,6 +290,7 @@ class IntegrationTest extends TestCase
         ]);
 
         Property::factory()->create([
+            'user_id' => $user2->id,
             'title' => 'Appartement à Yaoundé',
             'type' => 'apartment',
             'price' => 25000000,
@@ -288,6 +299,7 @@ class IntegrationTest extends TestCase
         ]);
 
         Property::factory()->create([
+            'user_id' => $user3->id,
             'title' => 'Maison à Bafoussam',
             'type' => 'house',
             'price' => 15000000,
@@ -320,8 +332,11 @@ class IntegrationTest extends TestCase
         $propertyData = [
             'title' => 'Test Property',
             'description' => 'Test Description',
+            'type' => 'house',
             'price' => 1000000,
             'location' => 'Test Location',
+            'latitude' => 4.0483,
+            'longitude' => 9.7043,
         ];
         $this->post('/properties', $propertyData)->assertRedirect('/properties');
 

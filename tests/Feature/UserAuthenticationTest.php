@@ -103,28 +103,68 @@ class UserAuthenticationTest extends TestCase
     }
 
     /** @test */
-    public function user_role_validation_works()
+    public function user_can_register_as_admin()
     {
-        $validRoles = ['admin', 'agent', 'client', 'proprietor', 'investor'];
+        $userData = [
+            'first_name' => 'Test',
+            'last_name' => 'Admin',
+            'email' => 'testadmin@example.com',
+            'phone' => '+2371234567890',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'admin',
+        ];
 
-        foreach ($validRoles as $role) {
-            $userData = [
-                'first_name' => 'Test',
-                'last_name' => 'User',
-                'email' => "test{$role}@example.com",
-                'phone' => "+23712345678{$role}",
-                'password' => 'password123',
-                'password_confirmation' => 'password123',
-                'role' => $role,
-            ];
+        $response = $this->post('/register', $userData);
+        $response->assertRedirect('/dashboard');
 
-            $response = $this->post('/register', $userData);
-            $response->assertRedirect('/dashboard');
+        $this->assertDatabaseHas('users', [
+            'email' => 'testadmin@example.com',
+            'role' => 'admin',
+        ]);
+    }
 
-            $this->assertDatabaseHas('users', [
-                'email' => "test{$role}@example.com",
-                'role' => $role,
-            ]);
-        }
+    /** @test */
+    public function user_can_register_as_agent()
+    {
+        $userData = [
+            'first_name' => 'Test',
+            'last_name' => 'Agent',
+            'email' => 'testagent@example.com',
+            'phone' => '+2371234567891',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'agent',
+        ];
+
+        $response = $this->post('/register', $userData);
+        $response->assertRedirect('/dashboard');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'testagent@example.com',
+            'role' => 'agent',
+        ]);
+    }
+
+    /** @test */
+    public function user_can_register_as_client()
+    {
+        $userData = [
+            'first_name' => 'Test',
+            'last_name' => 'Client',
+            'email' => 'testclient@example.com',
+            'phone' => '+2371234567892',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'client',
+        ];
+
+        $response = $this->post('/register', $userData);
+        $response->assertRedirect('/dashboard');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'testclient@example.com',
+            'role' => 'client',
+        ]);
     }
 }

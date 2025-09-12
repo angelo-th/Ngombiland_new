@@ -82,7 +82,7 @@ class WelcomeController extends Controller
             ],
         ];
 
-        return view('welcomepage', compact('services', 'stats', 'testimonials'));
+        return view('welcome', compact('services', 'stats', 'testimonials'));
     }
 
     public function services()

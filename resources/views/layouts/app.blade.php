@@ -6,18 +6,19 @@
     <title>@yield('title', 'NGOMBILAND')</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ asset('css/ngombiland.css') }}">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @stack('styles')
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav class="navbar sticky top-0 z-50">
+        <div class="container mx-auto">
             <div class="flex justify-between h-16">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('dashboard') }}" class="flex items-center">
-                        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-home text-white text-xl"></i>
                         </div>
                         <span class="text-2xl font-bold text-gray-900">NGOMBILAND</span>
@@ -25,30 +26,30 @@
                 </div>
 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 font-medium transition-colors {{ request()->routeIs('dashboard') ? 'text-blue-600' : '' }}">
-                        <i class="fas fa-tachometer-alt mr-1"></i>
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="fas fa-tachometer-alt mr-2"></i>
                         Dashboard
                     </a>
-                    <a href="{{ route('properties.index') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 font-medium transition-colors {{ request()->routeIs('properties.*') ? 'text-blue-600' : '' }}">
-                        <i class="fas fa-building mr-1"></i>
+                    <a href="{{ route('properties.index') }}" class="nav-link {{ request()->routeIs('properties.*') ? 'active' : '' }}">
+                        <i class="fas fa-building mr-2"></i>
                         Propriétés
                     </a>
-                    <a href="{{ route('crowdfunding.index') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 font-medium transition-colors {{ request()->routeIs('crowdfunding.*') ? 'text-blue-600' : '' }}">
-                        <i class="fas fa-users mr-1"></i>
+                    <a href="{{ route('crowdfunding.index') }}" class="nav-link {{ request()->routeIs('crowdfunding.*') ? 'active' : '' }}">
+                        <i class="fas fa-users mr-2"></i>
                         Crowdfunding
                     </a>
-                    <a href="{{ route('messages.index') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 font-medium transition-colors {{ request()->routeIs('messages.*') ? 'text-blue-600' : '' }}">
-                        <i class="fas fa-envelope mr-1"></i>
+                    <a href="{{ route('messages.index') }}" class="nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                        <i class="fas fa-envelope mr-2"></i>
                         Messages
                         @if(auth()->check() && auth()->user()->unread_messages_count > 0)
-                            <span class="ml-1 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <span class="ml-1 badge badge-error">
                                 {{ auth()->user()->unread_messages_count }}
                             </span>
                         @endif
                     </a>
-                    <a href="/wallet" class="text-gray-700 hover:text-blue-600 px-3 py-2 font-medium transition-colors {{ request()->is('wallet*') ? 'text-blue-600' : '' }}">
-                        <i class="fas fa-wallet mr-1"></i>
+                    <a href="/wallet" class="nav-link {{ request()->is('wallet*') ? 'active' : '' }}">
+                        <i class="fas fa-wallet mr-2"></i>
                         Portefeuille
                     </a>
                 </div>
@@ -59,7 +60,7 @@
                     <div class="relative">
                         <button class="p-2 text-gray-400 hover:text-gray-600 relative">
                             <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">3</span>
+                            <span class="absolute -top-1 -right-1 badge badge-error">3</span>
                         </button>
                     </div>
 
@@ -76,7 +77,7 @@
                         </button>
 
                         <div x-show="open" @click.away="open = false" 
-                             class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50"
+                             class="absolute right-0 mt-2 w-48 card py-1 z-50"
                              x-transition:enter="transition ease-out duration-100"
                              x-transition:enter-start="transform opacity-0 scale-95"
                              x-transition:enter-end="transform opacity-100 scale-100"
@@ -111,23 +112,23 @@
         <!-- Mobile Navigation -->
         <div class="md:hidden" x-data="{ open: false }">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50">
-                <a href="{{ route('dashboard') }}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                <a href="{{ route('dashboard') }}" class="block px-3 py-2 nav-link">
                     <i class="fas fa-tachometer-alt mr-2"></i>
                     Dashboard
                 </a>
-                <a href="{{ route('properties.index') }}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                <a href="{{ route('properties.index') }}" class="block px-3 py-2 nav-link">
                     <i class="fas fa-building mr-2"></i>
                     Propriétés
                 </a>
-                <a href="{{ route('crowdfunding.index') }}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                <a href="{{ route('crowdfunding.index') }}" class="block px-3 py-2 nav-link">
                     <i class="fas fa-users mr-2"></i>
                     Crowdfunding
                 </a>
-                <a href="{{ route('messages.index') }}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                <a href="{{ route('messages.index') }}" class="block px-3 py-2 nav-link">
                     <i class="fas fa-envelope mr-2"></i>
                     Messages
                 </a>
-                <a href="/wallet" class="block px-3 py-2 text-gray-700 hover:text-blue-600 font-medium">
+                <a href="/wallet" class="block px-3 py-2 nav-link">
                     <i class="fas fa-wallet mr-2"></i>
                     Portefeuille
                 </a>
@@ -137,13 +138,15 @@
 
     <!-- Flash Messages -->
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+        <div class="alert alert-success mx-4 mt-4" role="alert">
+            <i class="fas fa-check-circle mr-2"></i>
             <span class="block sm:inline">{{ session('success') }}</span>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-4 mt-4" role="alert">
+        <div class="alert alert-error mx-4 mt-4" role="alert">
+            <i class="fas fa-exclamation-circle mr-2"></i>
             <span class="block sm:inline">{{ session('error') }}</span>
         </div>
     @endif
@@ -154,12 +157,12 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer class="footer">
+        <div class="container mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
+                        <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-home text-white text-xl"></i>
                         </div>
                         <span class="text-2xl font-bold">NGOMBILAND</span>
@@ -194,8 +197,8 @@
                 <div>
                     <h4 class="text-lg font-bold mb-4">Services</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors">Marketplace</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors">Crowdfunding</a></li>
+                        <li><a href="{{ route('properties.index') }}" class="hover:text-white transition-colors">Marketplace</a></li>
+                        <li><a href="{{ route('crowdfunding.index') }}" class="hover:text-white transition-colors">Crowdfunding</a></li>
                         <li><a href="#" class="hover:text-white transition-colors">Estimation gratuite</a></li>
                         <li><a href="#" class="hover:text-white transition-colors">Gestion locative</a></li>
                     </ul>

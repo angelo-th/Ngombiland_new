@@ -11,7 +11,13 @@ class PropertyController extends Controller
     {
         $properties = Property::with('owner')->latest()->paginate(12);
 
-        return view('properties.index', compact('properties'));
+        // Si l'utilisateur est authentifié, utiliser la vue privée
+        if (auth()->check()) {
+            return view('properties.index', compact('properties'));
+        }
+
+        // Sinon, utiliser la vue publique
+        return view('properties.public', compact('properties'));
     }
 
     public function create()
@@ -54,7 +60,7 @@ class PropertyController extends Controller
             $property->update(['images' => $images]);
         }
 
-        return redirect('/properties')->with('success', 'Bien créé avec succès');
+        return redirect()->route('properties.index')->with('success', 'Bien créé avec succès');
     }
 
     public function show(Property $property)
@@ -93,7 +99,7 @@ class PropertyController extends Controller
             'longitude' => $request->longitude,
         ]);
 
-        return redirect('/properties')->with('success', 'Bien mis à jour');
+        return redirect()->route('properties.index')->with('success', 'Bien mis à jour');
     }
 
     public function destroy(Property $property)
@@ -101,6 +107,6 @@ class PropertyController extends Controller
         $this->authorize('delete', $property);
         $property->delete();
 
-        return redirect('/properties')->with('success', 'Bien supprimé');
+        return redirect()->route('properties.index')->with('success', 'Bien supprimé');
     }
 }
