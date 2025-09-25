@@ -17,6 +17,9 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\RentalDistributionController;
+use App\Http\Controllers\SecondaryMarketController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -96,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Properties Routes (authentifiés)
     Route::resource('properties', PropertyController::class)->except(['index', 'show']);
+    Route::get('/properties/{property}/crowdfunding/create', [PropertyController::class, 'createCrowdfunding'])->name('properties.crowdfunding.create');
     Route::post('properties/{id}/upload-documents', [PropertyController::class, 'uploadDocuments'])->name('properties.upload');
 
     // Investments Routes
@@ -117,6 +121,33 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+    // Rental Distribution Routes
+    Route::get('/rental-distribution', [RentalDistributionController::class, 'index'])->name('rental-distribution.index');
+    Route::get('/rental-distribution/{project}', [RentalDistributionController::class, 'show'])->name('rental-distribution.show');
+    Route::post('/rental-distribution/{project}/distribute', [RentalDistributionController::class, 'distribute'])->name('rental-distribution.distribute');
+    Route::get('/rental-distribution/{project}/estimated-income', [RentalDistributionController::class, 'getEstimatedIncome'])->name('rental-distribution.estimated-income');
+    Route::get('/my-rental-income', [RentalDistributionController::class, 'userHistory'])->name('rental-distribution.user-history');
+
+    // Secondary Market Routes
+    Route::get('/secondary-market', [SecondaryMarketController::class, 'index'])->name('secondary-market.index');
+    Route::get('/secondary-market/create', [SecondaryMarketController::class, 'create'])->name('secondary-market.create');
+    Route::post('/secondary-market', [SecondaryMarketController::class, 'store'])->name('secondary-market.store');
+    Route::get('/secondary-market/{listing}', [SecondaryMarketController::class, 'show'])->name('secondary-market.show');
+    Route::post('/secondary-market/{listing}/offer', [SecondaryMarketController::class, 'makeOffer'])->name('secondary-market.offer');
+    Route::post('/secondary-market/offers/{offer}/accept', [SecondaryMarketController::class, 'acceptOffer'])->name('secondary-market.accept-offer');
+    Route::post('/secondary-market/offers/{offer}/reject', [SecondaryMarketController::class, 'rejectOffer'])->name('secondary-market.reject-offer');
+    Route::get('/my-listings', [SecondaryMarketController::class, 'myListings'])->name('secondary-market.my-listings');
+    Route::get('/my-offers', [SecondaryMarketController::class, 'myOffers'])->name('secondary-market.my-offers');
+    Route::get('/received-offers', [SecondaryMarketController::class, 'receivedOffers'])->name('secondary-market.received-offers');
+    Route::post('/secondary-market/{listing}/cancel', [SecondaryMarketController::class, 'cancelListing'])->name('secondary-market.cancel');
+
+    // Secondary Marketplace Routes
+    Route::get('/secondary-marketplace', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'index'])->name('secondary-marketplace.index');
+    Route::get('/secondary-marketplace/listings/create', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'create'])->name('secondary-marketplace.create');
+    Route::post('/secondary-marketplace/listings', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'store'])->name('secondary-marketplace.store');
+    Route::get('/secondary-marketplace/listings/{listing}', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'show'])->name('secondary-marketplace.show');
+    Route::post('/secondary-marketplace/listings/{listing}/buy', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'buy'])->name('secondary-marketplace.buy');
 });
 
 // ======================= 👑 ADMIN =======================

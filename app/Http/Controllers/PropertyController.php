@@ -162,4 +162,9 @@ class PropertyController extends Controller
 
         return redirect()->route('properties.index')->with('success', 'Bien supprimé');
     }
+
+    public function createCrowdfunding(Property $property)
+    {
+        return view('properties.create-crowdfunding', compact('property'));
+    }
 }

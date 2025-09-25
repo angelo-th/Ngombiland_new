@@ -174,14 +174,29 @@ class CrowdfundingController extends Controller
 
         $shares = $request->shares;
         $amount = $shares * $crowdfunding->price_per_share;
+        $user = Auth::user();
 
-        // Vérifier que l'utilisateur a assez de fonds (à implémenter avec le système de wallet)
-        // if (Auth::user()->wallet_balance < $amount) {
-        //     return back()->with('error', 'Solde insuffisant !');
-        // }
+        // Check if the user has enough funds
+        if ($user->wallet->balance < $amount) {
+            return back()->with('error', 'Insufficient funds in your wallet.');
+        }
+
+        // Deduct the amount from the user's wallet
+        $user->wallet->balance -= $amount;
+        $user->wallet->save();
+
+        // Create a transaction record
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $user->wallet->id,
+            'type' => 'investment',
+            'amount' => $amount,
+            'description' => 'Investment in ' . $crowdfunding->title,
+            'status' => 'completed',
+        ]);
 
         $investment = $crowdfunding->investments()->create([
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
             'shares_purchased' => $shares,
             'amount_invested' => $amount,
             'price_per_share' => $crowdfunding->price_per_share,
@@ -189,15 +204,15 @@ class CrowdfundingController extends Controller
             'confirmed_at' => now(),
         ]);
 
-        // Mettre à jour les statistiques du projet
+        // Update project statistics
         $crowdfunding->increment('shares_sold', $shares);
         $crowdfunding->increment('amount_raised', $amount);
 
-        // Vérifier si le projet est entièrement financé
+        // Check if the project is fully funded
         if ($crowdfunding->fresh()->is_fully_funded) {
             $crowdfunding->update(['status' => 'funded']);
         }
 
-        return back()->with('success', 'Investissement effectué avec succès !');
+        return back()->with('success', 'Investment successful!');
     }
 }
