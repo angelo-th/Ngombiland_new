@@ -111,6 +111,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('investments', InvestmentController::class)->except(['index']);
 
     // Crowdfunding Routes (authentifiés)
+    Route::get('/crowdfunding/my-projects', [CrowdfundingController::class, 'myProjects'])->name('crowdfunding.my-projects');
     Route::get('/crowdfunding/create', [CrowdfundingController::class, 'create'])->name('crowdfunding.create');
     Route::post('/crowdfunding', [CrowdfundingController::class, 'store'])->name('crowdfunding.store');
     Route::get('/crowdfunding/{crowdfunding}/edit', [CrowdfundingController::class, 'edit'])->name('crowdfunding.edit');
@@ -118,6 +119,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/crowdfunding/{crowdfunding}', [CrowdfundingController::class, 'destroy'])->name('crowdfunding.destroy');
     Route::post('/crowdfunding/{crowdfunding}/invest', [CrowdfundingController::class, 'invest'])->name('crowdfunding.invest');
     Route::post('/crowdfunding/{crowdfunding}/activate', [CrowdfundingController::class, 'activate'])->name('crowdfunding.activate');
+    Route::post('/crowdfunding/{crowdfunding}/submit', [CrowdfundingController::class, 'submit'])->name('crowdfunding.submit');
 
     // Messages Routes
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
@@ -182,6 +184,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     
     // Gestion du crowdfunding
     Route::get('/crowdfunding', [AdminController::class, 'crowdfunding'])->name('admin.crowdfunding');
+    Route::post('/crowdfunding/{project}/submit', [AdminController::class, 'submitCrowdfunding'])->name('admin.crowdfunding.submit');
     Route::post('/crowdfunding/{project}/approve', [AdminController::class, 'approveCrowdfunding'])->name('admin.crowdfunding.approve');
     Route::post('/crowdfunding/{project}/reject', [AdminController::class, 'rejectCrowdfunding'])->name('admin.crowdfunding.reject');
 });

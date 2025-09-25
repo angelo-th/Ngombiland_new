@@ -33,6 +33,7 @@
                 <div>
                     <select name="status" class="form-select">
                         <option value="">Tous les statuts</option>
+                        <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Brouillons</option>
                         <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>En attente</option>
                         <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Actifs</option>
                         <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejetés</option>
@@ -127,12 +128,30 @@
                                     <!-- Statut et actions -->
                                     <div class="flex flex-col items-end space-y-2">
                                         <!-- Statut -->
-                                        <span class="badge {{ $project->status === 'active' ? 'badge-success' : ($project->status === 'rejected' ? 'badge-danger' : ($project->status === 'completed' ? 'badge-info' : 'badge-warning')) }}">
-                                            {{ ucfirst($project->status) }}
+                                        <span class="badge {{ $project->status === 'active' ? 'badge-success' : ($project->status === 'rejected' ? 'badge-danger' : ($project->status === 'completed' ? 'badge-info' : ($project->status === 'draft' ? 'badge-secondary' : 'badge-warning'))) }}">
+                                            @if($project->status === 'draft') Brouillon
+                                            @elseif($project->status === 'pending') En attente
+                                            @elseif($project->status === 'active') Actif
+                                            @elseif($project->status === 'rejected') Rejeté
+                                            @elseif($project->status === 'completed') Terminé
+                                            @else {{ ucfirst($project->status) }}
+                                            @endif
                                         </span>
 
                                         <!-- Actions -->
-                                        @if($project->status === 'pending')
+                                        @if($project->status === 'draft')
+                                        <div class="flex space-x-2">
+                                            <form method="POST" action="{{ route('admin.crowdfunding.submit', $project) }}" class="inline">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="btn btn-primary btn-sm"
+                                                        onclick="return confirm('Soumettre ce projet pour validation ?')">
+                                                    <i class="fas fa-paper-plane mr-1"></i>
+                                                    Soumettre
+                                                </button>
+                                            </form>
+                                        </div>
+                                        @elseif($project->status === 'pending')
                                         <div class="flex space-x-2">
                                             <form method="POST" action="{{ route('admin.crowdfunding.approve', $project) }}" class="inline">
                                                 @csrf

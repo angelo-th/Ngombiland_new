@@ -230,4 +230,42 @@ class CrowdfundingController extends Controller
 
         return back()->with('success', 'Investment successful!');
     }
+
+    /**
+     * Soumettre un projet crowdfunding pour validation
+     */
+    public function submit(CrowdfundingProject $crowdfunding)
+    {
+        // Vérifier que l'utilisateur est le propriétaire du projet
+        if ($crowdfunding->user_id !== Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        // Vérifier que le projet est en brouillon
+        if ($crowdfunding->status !== 'draft') {
+            return back()->with('error', 'Seuls les projets en brouillon peuvent être soumis');
+        }
+
+        // Vérifier que la propriété associée est approuvée
+        if ($crowdfunding->property->status !== 'approved') {
+            return back()->with('error', 'La propriété associée doit être approuvée avant de soumettre le projet');
+        }
+
+        $crowdfunding->update(['status' => 'pending']);
+
+        return back()->with('success', 'Projet soumis pour validation. Il sera examiné par notre équipe.');
+    }
+
+    /**
+     * Afficher les projets crowdfunding du propriétaire
+     */
+    public function myProjects()
+    {
+        $projects = CrowdfundingProject::where('user_id', Auth::id())
+            ->with('property')
+            ->latest()
+            ->paginate(12);
+
+        return view('crowdfunding.my-projects', compact('projects'));
+    }
 }
