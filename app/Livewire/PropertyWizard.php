@@ -70,7 +70,9 @@ class PropertyWizard extends Component
 
     public function previousStep()
     {
-        $this->currentStep--;
+        if ($this->currentStep > 1) {
+            $this->currentStep--;
+        }
     }
 
     public function validateCurrentStep()
@@ -118,14 +120,14 @@ class PropertyWizard extends Component
     public function updatedTotalAmount()
     {
         if ($this->total_shares > 0) {
-            $this->price_per_share = $this->total_amount / $this->total_shares;
+            $this->price_per_share = (float)$this->total_amount / (int)$this->total_shares;
         }
     }
 
     public function updatedTotalShares()
     {
         if ($this->total_amount > 0) {
-            $this->price_per_share = $this->total_amount / $this->total_shares;
+            $this->price_per_share = (float)$this->total_amount / (int)$this->total_shares;
         }
     }
 
@@ -195,7 +197,7 @@ class PropertyWizard extends Component
         }
 
         session()->flash('success', 'Propriété créée avec succès !');
-        return redirect()->route('properties.index');
+        return $this->redirect('/properties');
     }
 
     public function render()

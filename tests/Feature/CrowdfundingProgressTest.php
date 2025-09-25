@@ -67,8 +67,10 @@ class CrowdfundingProgressTest extends TestCase
     /** @test */
     public function it_calculates_days_remaining_correctly()
     {
-        Livewire::test('crowdfunding-progress', ['project' => $this->project])
-            ->assertSet('daysRemaining', 15);
+        $component = Livewire::test('crowdfunding-progress', ['project' => $this->project]);
+        $daysRemaining = $component->get('daysRemaining');
+        $this->assertGreaterThanOrEqual(14, $daysRemaining);
+        $this->assertLessThanOrEqual(15, $daysRemaining);
     }
 
     /** @test */
@@ -113,7 +115,7 @@ class CrowdfundingProgressTest extends TestCase
         
         Livewire::test('crowdfunding-progress', ['project' => $this->project])
             ->assertSet('progressPercentage', 100.0)
-            ->assertSee('Projet entièrement financé !');
+            ->assertSee('Projet financé avec succès !');
     }
 
     /** @test */

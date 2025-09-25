@@ -9,7 +9,12 @@ class PropertyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Property::with('owner');
+        // Si l'utilisateur est authentifié, filtrer par ses propriétés
+        if (auth()->check()) {
+            $query = auth()->user()->properties()->with('owner');
+        } else {
+            $query = Property::with('owner');
+        }
 
         // Filtres de recherche
         if ($request->filled('search')) {

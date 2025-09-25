@@ -150,7 +150,7 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals($amount, $transaction->amount);
         $this->assertEquals('pending', $transaction->status);
         $this->assertEquals($provider, $transaction->provider);
-        $this->assertStringContains('Paiement Mobile Money MTN - 675123456', $transaction->description);
+        $this->assertStringContainsString('Paiement Mobile Money MTN - 675123456', $transaction->description);
     }
 
     /** @test */

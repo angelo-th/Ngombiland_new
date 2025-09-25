@@ -34,6 +34,11 @@ class RentalDistribution extends Model
         return $this->belongsTo(CrowdfundingProject::class);
     }
 
+    public function details()
+    {
+        return $this->hasMany(RentalDistributionDetail::class);
+    }
+
     public function distributions()
     {
         return $this->hasMany(RentalDistributionDetail::class);

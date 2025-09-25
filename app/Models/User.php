@@ -130,4 +130,31 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class, 'receiver_id');
     }
+
+    // Méthodes de vérification de rôle
+    public function isProprietor()
+    {
+        return $this->role === 'proprietor';
+    }
+
+    public function isInvestor()
+    {
+        return $this->role === 'investor';
+    }
+
+    public function isAgent()
+    {
+        return $this->role === 'agent';
+    }
+
+    public function isClient()
+    {
+        return $this->role === 'client';
+    }
+
+    // Accesseur pour les messages non lus
+    public function getUnreadMessagesCountAttribute()
+    {
+        return $this->unreadMessages()->count();
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CrowdfundingProject;
 use App\Models\Property;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,12 +14,26 @@ class CrowdfundingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $projects = CrowdfundingProject::with(['user', 'property'])
-            ->active()
-            ->latest()
-            ->paginate(12);
+        $query = CrowdfundingProject::with(['user', 'property']);
+
+        // Filtres
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        } else {
+            $query->active();
+        }
+
+        if ($request->filled('min_roi')) {
+            $query->where('expected_roi', '>=', $request->get('min_roi'));
+        }
+
+        if ($request->filled('max_amount')) {
+            $query->where('total_amount', '<=', $request->get('max_amount'));
+        }
+
+        $projects = $query->latest()->paginate(12)->withQueryString();
 
         return view('crowdfunding.index', compact('projects'));
     }
@@ -28,7 +43,7 @@ class CrowdfundingController extends Controller
      */
     public function create()
     {
-        $properties = Auth::user()->properties()->where('status', 'available')->get();
+        $properties = Auth::user()->properties()->where('status', 'approved')->get();
         return view('crowdfunding.create', compact('properties'));
     }
 
