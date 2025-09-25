@@ -15,6 +15,7 @@ class RentalDistributionService
         $rentToDistribute = $totalRent * 0.7;
 
         $distribution = RentalDistribution::create([
+            'property_id' => $project->property_id,
             'crowdfunding_project_id' => $project->id,
             'total_rent_amount' => $totalRent,
             'distributed_amount' => $rentToDistribute,

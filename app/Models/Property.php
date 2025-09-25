@@ -10,7 +10,7 @@ class Property extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'title', 'description', 'price', 'location', 'latitude', 'longitude', 'status', 'type', 'images',
+        'user_id', 'title', 'description', 'price', 'location', 'latitude', 'longitude', 'status', 'type', 'images', 'is_crowdfundable', 'expected_roi',
     ];
 
     protected $casts = [
@@ -18,6 +18,8 @@ class Property extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'images' => 'array',
+        'is_crowdfundable' => 'boolean',
+        'expected_roi' => 'decimal:2',
     ];
 
     public function owner()
@@ -33,6 +35,11 @@ class Property extends Model
     public function investments()
     {
         return $this->hasMany(Investment::class);
+    }
+
+    public function crowdfundingProjects()
+    {
+        return $this->hasMany(CrowdfundingProject::class);
     }
 
 }

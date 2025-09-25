@@ -12,18 +12,14 @@ class RentalDistribution extends Model
     protected $fillable = [
         'property_id',
         'crowdfunding_project_id',
-        'total_rental_amount',
-        'investor_share_amount',
-        'platform_share_amount',
+        'total_rent_amount',
+        'distributed_amount',
         'distribution_date',
-        'status',
-        'reference',
     ];
 
     protected $casts = [
-        'total_rental_amount' => 'decimal:2',
-        'investor_share_amount' => 'decimal:2',
-        'platform_share_amount' => 'decimal:2',
+        'total_rent_amount' => 'decimal:2',
+        'distributed_amount' => 'decimal:2',
         'distribution_date' => 'date',
     ];
 
@@ -43,14 +39,4 @@ class RentalDistribution extends Model
         return $this->hasMany(RentalDistributionDetail::class);
     }
 
-    // Scopes
-    public function scopeCompleted($query)
-    {
-        return $query->where('status', 'completed');
-    }
-
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
 }

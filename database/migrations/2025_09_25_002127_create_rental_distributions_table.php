@@ -15,12 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('property_id')->constrained()->onDelete('cascade');
             $table->foreignId('crowdfunding_project_id')->constrained()->onDelete('cascade');
-            $table->decimal('total_rental_amount', 15, 2);
-            $table->decimal('investor_share_amount', 15, 2);
-            $table->decimal('platform_share_amount', 15, 2);
+            $table->decimal('total_rent_amount', 15, 2);
+            $table->decimal('distributed_amount', 15, 2);
             $table->date('distribution_date');
-            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
-            $table->string('reference')->unique();
             $table->timestamps();
         });
     }

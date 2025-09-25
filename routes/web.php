@@ -101,6 +101,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('properties', PropertyController::class)->except(['index', 'show']);
     Route::get('/properties/{property}/crowdfunding/create', [PropertyController::class, 'createCrowdfunding'])->name('properties.crowdfunding.create');
     Route::post('properties/{id}/upload-documents', [PropertyController::class, 'uploadDocuments'])->name('properties.upload');
+    Route::get('/properties/create/wizard', function() { return view('properties.wizard'); })->name('properties.wizard');
 
     // Investments Routes
     Route::get('/investments', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'userInvestments'])->name('investments.index');
@@ -141,6 +142,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-offers', [SecondaryMarketController::class, 'myOffers'])->name('secondary-market.my-offers');
     Route::get('/received-offers', [SecondaryMarketController::class, 'receivedOffers'])->name('secondary-market.received-offers');
     Route::post('/secondary-market/{listing}/cancel', [SecondaryMarketController::class, 'cancelListing'])->name('secondary-market.cancel');
+
+    // Payment Routes
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/topup', [PaymentController::class, 'showTopupForm'])->name('payments.topup');
+    Route::post('/payments/topup', [PaymentController::class, 'topup'])->name('payments.topup');
+    Route::get('/payments/withdraw', [PaymentController::class, 'showWithdrawForm'])->name('payments.withdraw');
+    Route::post('/payments/withdraw', [PaymentController::class, 'withdraw'])->name('payments.withdraw');
+    Route::get('/payments/history', [PaymentController::class, 'history'])->name('payments.history');
+    Route::get('/api/payments/balance', [PaymentController::class, 'getBalance'])->name('payments.balance');
+    Route::post('/api/payments/check', [PaymentController::class, 'checkPayment'])->name('payments.check');
 
     // Secondary Marketplace Routes
     Route::get('/secondary-marketplace', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'index'])->name('secondary-marketplace.index');
