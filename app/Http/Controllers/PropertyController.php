@@ -9,7 +9,13 @@ class PropertyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Property::with('owner');
+        // Si l'utilisateur est authentifié, filtrer par ses propriétés
+        if (auth()->check()) {
+            $query = auth()->user()->properties()->with('owner');
+        } else {
+            // Pour les visiteurs non connectés, afficher seulement les propriétés approuvées
+            $query = Property::where('status', 'approved')->with('owner');
+        }
 
         // Filtres de recherche
         if ($request->filled('search')) {
@@ -161,5 +167,10 @@ class PropertyController extends Controller
         $property->delete();
 
         return redirect()->route('properties.index')->with('success', 'Bien supprimé');
+    }
+
+    public function createCrowdfunding(Property $property)
+    {
+        return view('properties.create-crowdfunding', compact('property'));
     }
 }

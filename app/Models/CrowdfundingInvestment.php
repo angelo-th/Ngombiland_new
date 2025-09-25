@@ -46,4 +46,20 @@ class CrowdfundingInvestment extends Model
     {
         return $query->where('status', 'pending');
     }
+
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', 'cancelled');
+    }
+
+    // Accesseurs
+    public function getTotalValueAttribute()
+    {
+        return $this->shares_purchased * $this->price_per_share;
+    }
+
+    public function getExpectedReturnAttribute()
+    {
+        return $this->amount_invested * ($this->crowdfundingProject->expected_roi / 100);
+    }
 }

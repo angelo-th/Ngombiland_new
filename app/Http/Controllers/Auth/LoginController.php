@@ -27,13 +27,26 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
 
-            // Redirect to dashboard
-            return redirect()->route('dashboard');
+            // Redirect based on user role
+            $user = Auth::user();
+            switch ($user->role) {
+                case 'admin':
+                    return redirect()->route('admin.dashboard');
+                case 'agent':
+                    return redirect()->route('dashboard');
+                case 'proprietor':
+                    return redirect()->route('dashboard');
+                case 'investor':
+                    return redirect()->route('dashboard');
+                case 'client':
+                default:
+                    return redirect()->route('dashboard');
+            }
         }
 
         // Failed login
         return back()->withErrors([
-            'email' => 'Invalid credentials.',
+            'email' => 'Les identifiants fournis ne correspondent pas à nos enregistrements.',
         ])->onlyInput('email');
     }
 

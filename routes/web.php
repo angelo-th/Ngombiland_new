@@ -17,6 +17,9 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\RentalDistributionController;
+use App\Http\Controllers\SecondaryMarketController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -34,7 +37,10 @@ Route::get('/contact', [WelcomeController::class, 'contact'])->name('contact');
 
 // Liste des biens (publique)
 Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
-Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
+
+// Liste des projets crowdfunding (publique)
+Route::get('/crowdfunding', [CrowdfundingController::class, 'index'])->name('crowdfunding.index');
+Route::get('/crowdfunding/{crowdfunding}', [CrowdfundingController::class, 'show'])->name('crowdfunding.show');
 
 // Messages support visiteurs (max 3 si pas connecté)
 Route::post('/support/message', [SupportController::class, 'send'])
@@ -95,17 +101,25 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/investments/{investment}', [InvestmentController::class, 'show'])->name('investments.show');
 
     // Properties Routes (authentifiés)
-    Route::resource('properties', PropertyController::class)->except(['index', 'show']);
+    Route::resource('properties', PropertyController::class)->except(['index']);
+    Route::get('/properties/{property}/crowdfunding/create', [PropertyController::class, 'createCrowdfunding'])->name('properties.crowdfunding.create');
     Route::post('properties/{id}/upload-documents', [PropertyController::class, 'uploadDocuments'])->name('properties.upload');
+    Route::get('/properties/create/wizard', function() { return view('properties.wizard'); })->name('properties.wizard');
 
     // Investments Routes
     Route::get('/investments', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'userInvestments'])->name('investments.index');
     Route::resource('investments', InvestmentController::class)->except(['index']);
 
-    // Crowdfunding Routes
-    Route::resource('crowdfunding', CrowdfundingController::class);
+    // Crowdfunding Routes (authentifiés)
+    Route::get('/crowdfunding/my-projects', [CrowdfundingController::class, 'myProjects'])->name('crowdfunding.my-projects');
+    Route::get('/crowdfunding/create', [CrowdfundingController::class, 'create'])->name('crowdfunding.create');
+    Route::post('/crowdfunding', [CrowdfundingController::class, 'store'])->name('crowdfunding.store');
+    Route::get('/crowdfunding/{crowdfunding}/edit', [CrowdfundingController::class, 'edit'])->name('crowdfunding.edit');
+    Route::put('/crowdfunding/{crowdfunding}', [CrowdfundingController::class, 'update'])->name('crowdfunding.update');
+    Route::delete('/crowdfunding/{crowdfunding}', [CrowdfundingController::class, 'destroy'])->name('crowdfunding.destroy');
     Route::post('/crowdfunding/{crowdfunding}/invest', [CrowdfundingController::class, 'invest'])->name('crowdfunding.invest');
     Route::post('/crowdfunding/{crowdfunding}/activate', [CrowdfundingController::class, 'activate'])->name('crowdfunding.activate');
+    Route::post('/crowdfunding/{crowdfunding}/submit', [CrowdfundingController::class, 'submit'])->name('crowdfunding.submit');
 
     // Messages Routes
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
@@ -117,6 +131,43 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+
+    // Rental Distribution Routes
+    Route::get('/rental-distribution', [RentalDistributionController::class, 'index'])->name('rental-distribution.index');
+    Route::get('/rental-distribution/{project}', [RentalDistributionController::class, 'show'])->name('rental-distribution.show');
+    Route::post('/rental-distribution/{project}/distribute', [RentalDistributionController::class, 'distribute'])->name('rental-distribution.distribute');
+    Route::get('/rental-distribution/{project}/estimated-income', [RentalDistributionController::class, 'getEstimatedIncome'])->name('rental-distribution.estimated-income');
+    Route::get('/my-rental-income', [RentalDistributionController::class, 'userHistory'])->name('rental-distribution.user-history');
+
+    // Secondary Market Routes
+    Route::get('/secondary-market', [SecondaryMarketController::class, 'index'])->name('secondary-market.index');
+    Route::get('/secondary-market/create', [SecondaryMarketController::class, 'create'])->name('secondary-market.create');
+    Route::post('/secondary-market', [SecondaryMarketController::class, 'store'])->name('secondary-market.store');
+    Route::get('/secondary-market/{listing}', [SecondaryMarketController::class, 'show'])->name('secondary-market.show');
+    Route::post('/secondary-market/{listing}/offer', [SecondaryMarketController::class, 'makeOffer'])->name('secondary-market.offer');
+    Route::post('/secondary-market/offers/{offer}/accept', [SecondaryMarketController::class, 'acceptOffer'])->name('secondary-market.accept-offer');
+    Route::post('/secondary-market/offers/{offer}/reject', [SecondaryMarketController::class, 'rejectOffer'])->name('secondary-market.reject-offer');
+    Route::get('/my-listings', [SecondaryMarketController::class, 'myListings'])->name('secondary-market.my-listings');
+    Route::get('/my-offers', [SecondaryMarketController::class, 'myOffers'])->name('secondary-market.my-offers');
+    Route::get('/received-offers', [SecondaryMarketController::class, 'receivedOffers'])->name('secondary-market.received-offers');
+    Route::post('/secondary-market/{listing}/cancel', [SecondaryMarketController::class, 'cancelListing'])->name('secondary-market.cancel');
+
+    // Payment Routes
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::get('/payments/topup', [PaymentController::class, 'showTopupForm'])->name('payments.topup');
+    Route::post('/payments/topup', [PaymentController::class, 'topup'])->name('payments.topup');
+    Route::get('/payments/withdraw', [PaymentController::class, 'showWithdrawForm'])->name('payments.withdraw');
+    Route::post('/payments/withdraw', [PaymentController::class, 'withdraw'])->name('payments.withdraw');
+    Route::get('/payments/history', [PaymentController::class, 'history'])->name('payments.history');
+    Route::get('/api/payments/balance', [PaymentController::class, 'getBalance'])->name('payments.balance');
+    Route::post('/api/payments/check', [PaymentController::class, 'checkPayment'])->name('payments.check');
+
+    // Secondary Marketplace Routes
+    Route::get('/secondary-marketplace', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'index'])->name('secondary-marketplace.index');
+    Route::get('/secondary-marketplace/listings/create', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'create'])->name('secondary-marketplace.create');
+    Route::post('/secondary-marketplace/listings', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'store'])->name('secondary-marketplace.store');
+    Route::get('/secondary-marketplace/listings/{listing}', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'show'])->name('secondary-marketplace.show');
+    Route::post('/secondary-marketplace/listings/{listing}/buy', [\App\Http\Controllers\SecondaryMarketplaceController::class, 'buy'])->name('secondary-marketplace.buy');
 });
 
 // ======================= 👑 ADMIN =======================
@@ -125,7 +176,21 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    
+    // Gestion des propriétés
+    Route::get('/properties', [AdminController::class, 'properties'])->name('admin.properties');
+    Route::post('/properties/{property}/approve', [AdminController::class, 'approveProperty'])->name('admin.properties.approve');
+    Route::post('/properties/{property}/reject', [AdminController::class, 'rejectProperty'])->name('admin.properties.reject');
+    
+    // Gestion du crowdfunding
+    Route::get('/crowdfunding', [AdminController::class, 'crowdfunding'])->name('admin.crowdfunding');
+    Route::post('/crowdfunding/{project}/submit', [AdminController::class, 'submitCrowdfunding'])->name('admin.crowdfunding.submit');
+    Route::post('/crowdfunding/{project}/approve', [AdminController::class, 'approveCrowdfunding'])->name('admin.crowdfunding.approve');
+    Route::post('/crowdfunding/{project}/reject', [AdminController::class, 'rejectCrowdfunding'])->name('admin.crowdfunding.reject');
 });
 
 // ======================= 🔄 ROUTES LARAVEL PAR DÉFAUT =======================
 Auth::routes(['verify' => true]);
+
+// Route publique pour voir les détails d'une propriété (doit être à la fin pour éviter les conflits)
+Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');

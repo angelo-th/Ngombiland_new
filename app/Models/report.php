@@ -10,16 +10,38 @@ class Report extends Model
     use HasFactory;
 
     protected $fillable = [
-        'agent_id', 'property_id', 'description', 'latitude', 'longitude', 'status',
+        'user_id',
+        'property_id',
+        'type',
+        'description',
+        'status',
+        'admin_notes',
     ];
 
-    public function agent()
+    // Relations
+    public function user()
     {
-        return $this->belongsTo(User::class, 'agent_id');
+        return $this->belongsTo(User::class);
     }
 
     public function property()
     {
         return $this->belongsTo(Property::class);
+    }
+
+    // Scopes
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeResolved($query)
+    {
+        return $query->where('status', 'resolved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
     }
 }

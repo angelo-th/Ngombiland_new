@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Wallet extends Model
+class wallet extends Model
 {
     use HasFactory;
 
@@ -13,13 +13,13 @@ class Wallet extends Model
         'user_id',
         'balance',
         'currency',
-        'status',
     ];
 
     protected $casts = [
         'balance' => 'decimal:2',
     ];
 
+    // Relations
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -30,24 +30,49 @@ class Wallet extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    /**
-     * Deduct commission from wallet
-     */
-    public function deductCommission($amount)
+    // Méthodes
+    public function credit($amount, $description = null)
     {
-        $commission = $amount * 0.01; // 1% commission
-        $this->balance -= $commission;
+        $this->balance += $amount;
         $this->save();
 
-        // Create transaction record
-        Transaction::create([
-            'user_id' => $this->user_id,
-            'type' => 'commission',
-            'amount' => $commission,
-            'status' => 'completed',
-            'reference' => \Illuminate\Support\Str::uuid(),
-        ]);
+        if ($description) {
+            $this->transactions()->create([
+                'user_id' => $this->user_id,
+                'type' => 'deposit',
+                'amount' => $amount,
+                'description' => $description,
+                'status' => 'completed',
+            ]);
+        }
 
-        return $commission;
+        return $this;
+    }
+
+    public function debit($amount, $description = null)
+    {
+        if ($this->balance < $amount) {
+            throw new \Exception('Solde insuffisant');
+        }
+
+        $this->balance -= $amount;
+        $this->save();
+
+        if ($description) {
+            $this->transactions()->create([
+                'user_id' => $this->user_id,
+                'type' => 'withdrawal',
+                'amount' => $amount,
+                'description' => $description,
+                'status' => 'completed',
+            ]);
+        }
+
+        return $this;
+    }
+
+    public function canAfford($amount)
+    {
+        return $this->balance >= $amount;
     }
 }

@@ -20,7 +20,7 @@ class DashboardController extends Controller
             case 'admin':
                 return redirect()->route('admin.dashboard');
             case 'agent':
-                return redirect()->route('agent.dashboard');
+                return $this->agentDashboard();
             case 'proprietor':
                 return $this->proprietorDashboard();
             case 'investor':

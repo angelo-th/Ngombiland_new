@@ -18,8 +18,10 @@
         <div class="w-64 bg-blue-800 text-white p-4">
             <div class="flex items-center mb-8">
                 {{-- Laravel asset helper for logo --}}
-                <img src="{{ asset('images/logo.png') }}" alt="NGOMBILAND" class="h-10 mr-2">
-                <span class="font-bold">ADMIN</span>
+                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                    <i class="fas fa-home text-blue-600 text-xl"></i>
+                </div>
+                <span class="font-bold">NGOMBILAND ADMIN</span>
             </div>
             <nav>
                 <ul>
@@ -80,7 +82,9 @@
                             <span class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">3</span>
                         </div>
                         <div class="flex items-center">
-                            <img src="{{ asset('images/user-avatar.jpg') }}" alt="Admin" class="w-8 h-8 rounded-full mr-2">
+                            <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mr-2">
+                                <i class="fas fa-user text-gray-600"></i>
+                            </div>
                             <span>Admin</span>
                         </div>
                     </div>

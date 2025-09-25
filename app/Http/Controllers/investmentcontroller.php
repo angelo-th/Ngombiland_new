@@ -61,13 +61,6 @@ class InvestmentController extends Controller
         return redirect()->route('investments.index')->with('success', 'Investment added successfully!');
     }
 
-    // Show investment details
-    public function show(Investment $investment)
-    {
-        $this->authorize('view', $investment);
-
-        return view('dashboard.show_investment', compact('investment'));
-    }
 
     // Delete investment
     public function destroy(Investment $investment)

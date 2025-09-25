@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CrowdfundingProject;
 use App\Models\Property;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,12 +14,26 @@ class CrowdfundingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $projects = CrowdfundingProject::with(['user', 'property'])
-            ->active()
-            ->latest()
-            ->paginate(12);
+        $query = CrowdfundingProject::with(['user', 'property']);
+
+        // Filtres
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        } else {
+            $query->active();
+        }
+
+        if ($request->filled('min_roi')) {
+            $query->where('expected_roi', '>=', $request->get('min_roi'));
+        }
+
+        if ($request->filled('max_amount')) {
+            $query->where('total_amount', '<=', $request->get('max_amount'));
+        }
+
+        $projects = $query->latest()->paginate(12)->withQueryString();
 
         return view('crowdfunding.index', compact('projects'));
     }
@@ -28,7 +43,7 @@ class CrowdfundingController extends Controller
      */
     public function create()
     {
-        $properties = Auth::user()->properties()->where('status', 'available')->get();
+        $properties = Auth::user()->properties()->where('status', 'approved')->get();
         return view('crowdfunding.create', compact('properties'));
     }
 
@@ -174,14 +189,29 @@ class CrowdfundingController extends Controller
 
         $shares = $request->shares;
         $amount = $shares * $crowdfunding->price_per_share;
+        $user = Auth::user();
 
-        // Vérifier que l'utilisateur a assez de fonds (à implémenter avec le système de wallet)
-        // if (Auth::user()->wallet_balance < $amount) {
-        //     return back()->with('error', 'Solde insuffisant !');
-        // }
+        // Check if the user has enough funds
+        if ($user->wallet->balance < $amount) {
+            return back()->with('error', 'Insufficient funds in your wallet.');
+        }
+
+        // Deduct the amount from the user's wallet
+        $user->wallet->balance -= $amount;
+        $user->wallet->save();
+
+        // Create a transaction record
+        Transaction::create([
+            'user_id' => $user->id,
+            'wallet_id' => $user->wallet->id,
+            'type' => 'investment',
+            'amount' => $amount,
+            'description' => 'Investment in ' . $crowdfunding->title,
+            'status' => 'completed',
+        ]);
 
         $investment = $crowdfunding->investments()->create([
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
             'shares_purchased' => $shares,
             'amount_invested' => $amount,
             'price_per_share' => $crowdfunding->price_per_share,
@@ -189,15 +219,53 @@ class CrowdfundingController extends Controller
             'confirmed_at' => now(),
         ]);
 
-        // Mettre à jour les statistiques du projet
+        // Update project statistics
         $crowdfunding->increment('shares_sold', $shares);
         $crowdfunding->increment('amount_raised', $amount);
 
-        // Vérifier si le projet est entièrement financé
+        // Check if the project is fully funded
         if ($crowdfunding->fresh()->is_fully_funded) {
             $crowdfunding->update(['status' => 'funded']);
         }
 
-        return back()->with('success', 'Investissement effectué avec succès !');
+        return back()->with('success', 'Investment successful!');
+    }
+
+    /**
+     * Soumettre un projet crowdfunding pour validation
+     */
+    public function submit(CrowdfundingProject $crowdfunding)
+    {
+        // Vérifier que l'utilisateur est le propriétaire du projet
+        if ($crowdfunding->user_id !== Auth::id()) {
+            abort(403, 'Accès non autorisé');
+        }
+
+        // Vérifier que le projet est en brouillon
+        if ($crowdfunding->status !== 'draft') {
+            return back()->with('error', 'Seuls les projets en brouillon peuvent être soumis');
+        }
+
+        // Vérifier que la propriété associée est approuvée
+        if ($crowdfunding->property->status !== 'approved') {
+            return back()->with('error', 'La propriété associée doit être approuvée avant de soumettre le projet');
+        }
+
+        $crowdfunding->update(['status' => 'pending']);
+
+        return back()->with('success', 'Projet soumis pour validation. Il sera examiné par notre équipe.');
+    }
+
+    /**
+     * Afficher les projets crowdfunding du propriétaire
+     */
+    public function myProjects()
+    {
+        $projects = CrowdfundingProject::where('user_id', Auth::id())
+            ->with('property')
+            ->latest()
+            ->paginate(12);
+
+        return view('crowdfunding.my-projects', compact('projects'));
     }
 }

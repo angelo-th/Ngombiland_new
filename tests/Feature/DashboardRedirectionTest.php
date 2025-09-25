@@ -27,7 +27,8 @@ class DashboardRedirectionTest extends TestCase
         
         $response = $this->actingAs($user)->get('/dashboard');
         
-        $response->assertRedirect('/agent/dashboard');
+        $response->assertStatus(200);
+        $response->assertViewIs('dashboard.agent');
     }
 
     /** @test */

@@ -13,10 +13,13 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('type'); // 'top-up', 'withdrawal', 'purchase'
+            $table->foreignId('wallet_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('type'); // 'top-up', 'withdrawal', 'purchase', 'rental_income', etc.
             $table->decimal('amount', 15, 2);
+            $table->text('description')->nullable();
             $table->string('status')->default('pending'); // pending, completed, failed
-            $table->string('reference')->unique();
+            $table->string('reference')->nullable();
+            $table->string('provider')->nullable(); // MTN, Orange, etc.
             $table->timestamps();
         });
     }

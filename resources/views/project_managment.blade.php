@@ -1,205 +1,282 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NGOMBILAND - Crowdfunding Project Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/project_management.css') }}">
-    <script src="{{ asset('js/project_management.js') }}"></script>
-</head>
-<body class="bg-gradient-to-br from-emerald-50 to-teal-100 min-h-screen">
-    <!-- Header -->
-    <header class="bg-white shadow-lg border-b-4 border-emerald-500">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="bg-emerald-500 text-white p-2 rounded-lg">
-                        <i class="fas fa-building text-xl"></i>
-                    </div>
-                    <h1 class="text-2xl font-bold text-gray-800">NGOMBILAND</h1>
-                    <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">Owner</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <i class="fas fa-bell text-gray-600 text-xl cursor-pointer"></i>
-                        <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{{ $notificationsCount ?? 0 }}</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <img src="{{ auth()->user()->avatar ?? 'https://via.placeholder.com/40' }}" alt="Avatar" class="w-10 h-10 rounded-full">
-                        <span class="font-medium">{{ auth()->user()->name }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+@extends('layouts.app')
 
-    <div class="container mx-auto px-4 py-6" x-data="projectManagement()">
-        <!-- Navigation Tabs -->
-        <div class="mb-6">
-            <div class="flex space-x-1 bg-white rounded-lg p-1 shadow-md">
-                @php
-                    $tabs = [
-                        'dashboard' => 'Dashboard',
-                        'create' => 'Create Project',
-                        'projects' => 'My Projects',
-                        'communication' => 'Communication',
-                        'reports' => 'Reports'
-                    ];
-                @endphp
-                @foreach($tabs as $key => $label)
-                    <button @click="activeTab = '{{ $key }}'" 
-                            :class="activeTab === '{{ $key }}' ? 'bg-emerald-500 text-white' : 'text-gray-600 hover:bg-gray-100'"
-                            class="px-6 py-3 rounded-md font-medium transition-all duration-200">
-                        @if($key == 'dashboard') <i class="fas fa-chart-line mr-2"></i>@endif
-                        @if($key == 'create') <i class="fas fa-plus mr-2"></i>@endif
-                        @if($key == 'projects') <i class="fas fa-list mr-2"></i>@endif
-                        @if($key == 'communication') <i class="fas fa-comments mr-2"></i>@endif
-                        @if($key == 'reports') <i class="fas fa-chart-bar mr-2"></i>@endif
-                        {{ $label }}
+@section('title', 'Gestion des Projets - NGOMBILAND')
+
+@section('content')
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Gestion des Projets</h1>
+                <p class="mt-2 text-gray-600">Gérez vos projets de crowdfunding</p>
+            </div>
+            <a href="{{ route('crowdfunding.create') }}" 
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>
+                Nouveau Projet
+            </a>
+        </div>
+
+        <!-- Filtres -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <form method="GET" action="{{ route('projects.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                    <select name="status" id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Tous les statuts</option>
+                        <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Brouillon</option>
+                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Actif</option>
+                        <option value="funded" {{ request('status') === 'funded' ? 'selected' : '' }}>Financé</option>
+                        <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>Expiré</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+                    <input type="text" name="search" id="search" value="{{ request('search') }}" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Titre du projet...">
+                </div>
+                
+                <div>
+                    <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">Trier par</label>
+                    <select name="sort" id="sort" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="created_at" {{ request('sort') === 'created_at' ? 'selected' : '' }}>Date de création</option>
+                        <option value="amount_raised" {{ request('sort') === 'amount_raised' ? 'selected' : '' }}>Montant levé</option>
+                        <option value="expected_roi" {{ request('sort') === 'expected_roi' ? 'selected' : '' }}>ROI attendu</option>
+                        <option value="funding_deadline" {{ request('sort') === 'funding_deadline' ? 'selected' : '' }}>Date limite</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>
+                        Filtrer
                     </button>
-                @endforeach
+                </div>
+            </form>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-project-diagram text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total Projets</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $projects->total() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Financés</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $projects->where('status', 'funded')->count() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-clock text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">En cours</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $projects->where('status', 'active')->count() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-coins text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Montant Levé</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($projects->sum('amount_raised')) }} FCFA</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Dashboard Tab -->
-        <div x-show="activeTab === 'dashboard'" x-transition>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <!-- Example Stats -->
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-emerald-500">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Active Projects</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ $projects->count() }}</p>
-                        </div>
-                        <div class="bg-emerald-100 p-3 rounded-full">
-                            <i class="fas fa-building text-emerald-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Total Raised</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ number_format($totalRaised) }}</p>
-                            <p class="text-sm text-gray-500">FCFA</p>
-                        </div>
-                        <div class="bg-blue-100 p-3 rounded-full">
-                            <i class="fas fa-coins text-blue-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Investors</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ $investorsCount }}</p>
-                        </div>
-                        <div class="bg-orange-100 p-3 rounded-full">
-                            <i class="fas fa-users text-orange-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-medium text-gray-600">Average ROI</p>
-                            <p class="text-3xl font-bold text-gray-900">{{ $averageROI }}%</p>
-                        </div>
-                        <div class="bg-green-100 p-3 rounded-full">
-                            <i class="fas fa-percentage text-green-600 text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+        <!-- Liste des projets -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Mes Projets</h3>
             </div>
-
-            <!-- Charts -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Fundraising Progress</h3>
-                    <canvas id="fundraisingChart" class="w-full h-64"></canvas>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Project Distribution</h3>
-                    <canvas id="projectChart" class="w-full h-64"></canvas>
-                </div>
-            </div>
-
-            <!-- Recent Projects Table -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Recent Projects</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-4 font-medium text-gray-600">Project</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-600">Goal</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-600">Raised</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-600">Progress</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($projects as $project)
-                            <tr class="border-b border-gray-100 hover:bg-gray-50">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-3">
-                                        <img src="{{ $project->image ?? 'https://via.placeholder.com/50' }}" alt="Project" class="w-12 h-12 rounded-lg object-cover">
-                                        <div>
-                                            <p class="font-medium text-gray-900">{{ $project->name }}</p>
-                                            <p class="text-sm text-gray-500">{{ $project->location }}</p>
-                                        </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Projet
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Progression
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Montant
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ROI
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Statut
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($projects as $project)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        @if($project->images && count($project->images) > 0)
+                                            <img src="{{ asset('storage/' . $project->images[0]) }}" alt="{{ $project->title }}" 
+                                                 class="w-16 h-16 object-cover rounded-lg">
+                                        @else
+                                            <i class="fas fa-home text-gray-400 text-xl"></i>
+                                        @endif
                                     </div>
-                                </td>
-                                <td class="py-4 px-4 font-medium">{{ number_format($project->goal) }} FCFA</td>
-                                <td class="py-4 px-4 font-medium text-emerald-600">{{ number_format($project->raised) }} FCFA</td>
-                                <td class="py-4 px-4">
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ $project->progress }}%"></div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ Str::limit($project->title, 30) }}</div>
+                                        <div class="text-sm text-gray-500">{{ $project->property->location }}</div>
                                     </div>
-                                    <p class="text-sm text-gray-600 mt-1">{{ $project->progress }}%</p>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="bg-{{ $project->status_color }}-100 text-{{ $project->status_color }}-800 px-3 py-1 rounded-full text-sm font-medium">{{ $project->status }}</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <a href="{{ route('projects.show', $project) }}" class="text-emerald-600 hover:text-emerald-800 mr-2"><i class="fas fa-eye"></i></a>
-                                    <a href="{{ route('projects.edit', $project) }}" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></a>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-20 bg-gray-200 rounded-full h-2 mr-2">
+                                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $project->progress_percentage }}%"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-600">{{ round($project->progress_percentage) }}%</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ number_format($project->amount_raised) }} / {{ number_format($project->total_amount) }} FCFA</div>
+                                <div class="text-sm text-gray-500">{{ $project->shares_sold }} / {{ $project->total_shares }} parts</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ $project->expected_roi }}%
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if($project->status === 'active') bg-green-100 text-green-800
+                                    @elseif($project->status === 'draft') bg-yellow-100 text-yellow-800
+                                    @elseif($project->status === 'funded') bg-blue-100 text-blue-800
+                                    @elseif($project->status === 'expired') bg-red-100 text-red-800
+                                    @else bg-gray-100 text-gray-800
+                                    @endif">
+                                    @if($project->status === 'active') Actif
+                                    @elseif($project->status === 'draft') Brouillon
+                                    @elseif($project->status === 'funded') Financé
+                                    @elseif($project->status === 'expired') Expiré
+                                    @else {{ ucfirst($project->status) }}
+                                    @endif
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $project->created_at->format('d/m/Y') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('crowdfunding.show', $project) }}" 
+                                       class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('crowdfunding.edit', $project) }}" 
+                                       class="text-yellow-600 hover:text-yellow-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    @if($project->status === 'draft')
+                                    <button onclick="activateProject({{ $project->id }})" 
+                                            class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                    @endif
+                                    @if($project->status === 'active')
+                                    <button onclick="pauseProject({{ $project->id }})" 
+                                            class="text-orange-600 hover:text-orange-900">
+                                        <i class="fas fa-pause"></i>
+                                    </button>
+                                    @endif
+                                    <button onclick="deleteProject({{ $project->id }})" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-project-diagram text-4xl text-gray-300 mb-4"></i>
+                                <p>Aucun projet trouvé</p>
+                                <a href="{{ route('crowdfunding.create') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                    Créer votre premier projet
+                                </a>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Create Project Tab -->
-        <div x-show="activeTab === 'create'" x-transition>
-            @include('partials.project_create_form')
+        <!-- Pagination -->
+        @if($projects->hasPages())
+        <div class="mt-8">
+            {{ $projects->links() }}
         </div>
-
-        <!-- My Projects Tab -->
-        <div x-show="activeTab === 'projects'" x-transition>
-            @include('partials.project_list')
-        </div>
-
-        <!-- Communication Tab -->
-        <div x-show="activeTab === 'communication'" x-transition>
-            @include('partials.project_communication')
-        </div>
+        @endif
     </div>
+</div>
 
-    <script>
-        function projectManagement() {
-            return {
-                activeTab: 'dashboard'
-            }
-        }
-    </script>
-</body>
-</html>
+<script>
+function activateProject(projectId) {
+    if (confirm('Êtes-vous sûr de vouloir activer ce projet ?')) {
+        // TODO: Implémenter l'activation du projet
+        alert('Activer projet ' + projectId);
+    }
+}
+
+function pauseProject(projectId) {
+    if (confirm('Êtes-vous sûr de vouloir mettre en pause ce projet ?')) {
+        // TODO: Implémenter la pause du projet
+        alert('Mettre en pause projet ' + projectId);
+    }
+}
+
+function deleteProject(projectId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.')) {
+        // TODO: Implémenter la suppression du projet
+        alert('Supprimer projet ' + projectId);
+    }
+}
+</script>
+@endsection
