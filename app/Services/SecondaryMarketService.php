@@ -7,6 +7,7 @@ use App\Models\SecondaryMarketOffer;
 use App\Models\CrowdfundingInvestment;
 use App\Models\Transaction;
 use App\Models\Wallet;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -15,31 +16,22 @@ class SecondaryMarketService
     /**
      * Créer une annonce de vente sur le marché secondaire
      */
-    public function createListing(array $data)
+    public function createListing(CrowdfundingInvestment $investment, array $data)
     {
-        return DB::transaction(function () use ($data) {
-            // Vérifier que l'utilisateur possède bien ces parts
-            $investment = CrowdfundingInvestment::where('id', $data['crowdfunding_investment_id'])
-                ->where('user_id', $data['user_id'])
-                ->where('status', 'confirmed')
-                ->first();
+        if ($investment->user_id !== Auth::id()) {
+            throw new \Exception("Unauthorized: You do not own this investment.");
+        }
 
-            if (!$investment) {
-                throw new \Exception('Investissement non trouvé ou non confirmé');
-            }
+        if ($investment->shares_purchased < $data['shares_for_sale']) {
+            throw new \Exception("You cannot sell more shares than you own.");
+        }
 
-            // Vérifier que l'utilisateur a assez de parts à vendre
-            if ($investment->shares_purchased < $data['shares_for_sale']) {
-                throw new \Exception('Vous ne possédez pas assez de parts à vendre');
-            }
-
-            // Calculer le prix total
+        return DB::transaction(function () use ($investment, $data) {
             $totalPrice = $data['shares_for_sale'] * $data['price_per_share'];
-
-            // Créer l'annonce
+            
             $listing = SecondaryMarketListing::create([
-                'user_id' => $data['user_id'],
-                'crowdfunding_investment_id' => $data['crowdfunding_investment_id'],
+                'user_id' => Auth::id(),
+                'crowdfunding_investment_id' => $investment->id,
                 'shares_for_sale' => $data['shares_for_sale'],
                 'price_per_share' => $data['price_per_share'],
                 'total_price' => $totalPrice,

@@ -1,214 +1,267 @@
-<!DOCTYPE html>
-<html lang="en" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NGOMBILAND - Property Management</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/property_management.css') }}">
-    <script src="{{ asset('js/property_management.js') }}" defer></script>
-</head>
-<body class="h-full bg-gradient-to-br from-blue-50 via-white to-purple-50" x-data="propertiesApp()">
+@extends('layouts.app')
 
-<!-- Navigation Header -->
-<nav class="glass-effect border-b border-white/20 sticky top-0 z-50">
+@section('title', 'Gestion des Propriétés - NGOMBILAND')
+
+@section('content')
+<div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 flex items-center">
-                    <img class="h-8 w-auto" src="{{ asset('images/logo.svg') }}" alt="NGOMBILAND">
-                    <span class="ml-2 text-xl font-bold gradient-bg bg-clip-text text-transparent">NGOMBILAND</span>
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Gestion des Propriétés</h1>
+                <p class="mt-2 text-gray-600">Gérez vos propriétés et annonces</p>
+            </div>
+            <a href="{{ route('properties.create') }}" 
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>
+                Nouvelle Propriété
+            </a>
+        </div>
+
+        <!-- Filtres -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <form method="GET" action="{{ route('properties.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                    <select name="type" id="type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Tous les types</option>
+                        <option value="villa" {{ request('type') === 'villa' ? 'selected' : '' }}>Villa</option>
+                        <option value="apartment" {{ request('type') === 'apartment' ? 'selected' : '' }}>Appartement</option>
+                        <option value="house" {{ request('type') === 'house' ? 'selected' : '' }}>Maison</option>
+                        <option value="land" {{ request('type') === 'land' ? 'selected' : '' }}>Terrain</option>
+                        <option value="commercial" {{ request('type') === 'commercial' ? 'selected' : '' }}>Commercial</option>
+                    </select>
                 </div>
-                <nav class="hidden md:ml-10 md:flex space-x-8">
-                    <a href="#" class="text-gray-500 hover:text-gray-900 px-3 py-2 text-sm font-medium">Dashboard</a>
-                    <a href="#" class="text-blue-600 border-b-2 border-blue-600 px-3 py-2 text-sm font-medium">My Properties</a>
-                    <a href="#" class="text-gray-500 hover:text-gray-900 px-3 py-2 text-sm font-medium">Crowdfunding</a>
-                </nav>
+                
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                    <select name="status" id="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Tous les statuts</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>En attente</option>
+                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approuvé</option>
+                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejeté</option>
+                        <option value="sold" {{ request('status') === 'sold' ? 'selected' : '' }}>Vendu</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+                    <input type="text" name="search" id="search" value="{{ request('search') }}" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="Titre, localisation...">
+                </div>
+                
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-search mr-2"></i>
+                        Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-home text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total Propriétés</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $properties->total() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Approuvées</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $properties->where('status', 'approved')->count() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-clock text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">En attente</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $properties->where('status', 'pending')->count() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-eye text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Vues Total</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($properties->sum('views')) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des propriétés -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Mes Propriétés</h3>
             </div>
             
-            <div class="flex items-center space-x-4">
-                <div class="bg-white/20 rounded-full px-4 py-2 flex items-center space-x-2">
-                    <i class="fas fa-wallet text-green-600"></i>
-                    <span class="text-sm font-medium">Balance: {{ number_format(auth()->user()->balance ?? 0) }} FCFA</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <img class="h-8 w-8 rounded-full" src="{{ auth()->user()->profile_photo_url ?? asset('images/default_avatar.png') }}" alt="Profile">
-                    <span class="text-sm font-medium">{{ auth()->user()->name ?? 'Guest' }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
-    <!-- Header with actions -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Property Management</h1>
-            <p class="text-gray-600">Manage your real estate listings and track their performance</p>
-        </div>
-        <div class="flex space-x-3 mt-4 md:mt-0">
-            <button @click="showAddPropertyModal = true" class="gradient-bg text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-300 flex items-center space-x-2">
-                <i class="fas fa-plus"></i>
-                <span>Add Property</span>
-            </button>
-            <button @click="showFavorites = !showFavorites" :class="showFavorites ? 'bg-red-500 text-white' : 'bg-white text-gray-700'" class="px-6 py-3 rounded-xl font-medium border border-gray-200 hover:shadow-lg transition-all duration-300 flex items-center space-x-2">
-                <i class="fas fa-heart"></i>
-                <span>Favorites</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Quick stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="glass-effect p-6 rounded-2xl card-hover">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Total Listings</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $properties->count() }}</p>
-                </div>
-                <div class="p-3 bg-blue-500/20 rounded-xl">
-                    <i class="fas fa-building text-blue-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="glass-effect p-6 rounded-2xl card-hover">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Monthly Views</p>
-                    <p class="text-2xl font-bold text-gray-900">1,247</p>
-                </div>
-                <div class="p-3 bg-green-500/20 rounded-xl">
-                    <i class="fas fa-eye text-green-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="glass-effect p-6 rounded-2xl card-hover">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Leads Received</p>
-                    <p class="text-2xl font-bold text-gray-900">43</p>
-                </div>
-                <div class="p-3 bg-purple-500/20 rounded-xl">
-                    <i class="fas fa-phone text-purple-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-        
-        <div class="glass-effect p-6 rounded-2xl card-hover">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-gray-600">Revenue Generated</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ number_format($properties->sum('price')) }} FCFA</p>
-                </div>
-                <div class="p-3 bg-yellow-500/20 rounded-xl">
-                    <i class="fas fa-coins text-yellow-600 text-xl"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Filters and search -->
-    <div class="glass-effect p-6 rounded-2xl mb-8">
-        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-            <div class="flex-1">
-                <input type="text" x-model="searchQuery" placeholder="Search properties..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
-            <select x-model="filterType" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                <option value="">All Types</option>
-                @foreach(['appartement'=>'Apartment','maison'=>'House','villa'=>'Villa','terrain'=>'Land','commercial'=>'Commercial','bureau'=>'Office'] as $key=>$label)
-                    <option value="{{ $key }}">{{ $label }}</option>
-                @endforeach
-            </select>
-            <select x-model="filterStatus" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                <option value="">All Statuses</option>
-                @foreach(['active'=>'Active','pending'=>'Pending','sold'=>'Sold','rented'=>'Rented'] as $key=>$label)
-                    <option value="{{ $key }}">{{ $label }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-    <!-- Property list -->
-    <div class="space-y-6" x-show="!showFavorites">
-        @foreach($properties as $property)
-            <div class="glass-effect rounded-2xl overflow-hidden card-hover fade-in">
-                <div class="md:flex">
-                    <!-- Image -->
-                    <div class="md:w-1/3 relative">
-                        <img src="{{ $property->image_url }}" alt="{{ $property->title }}" class="h-64 md:h-48 w-full object-cover">
-                        <div class="absolute top-4 left-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-medium {{ $property->status_class }}">{{ $property->status_label }}</span>
-                        </div>
-                        <div class="absolute top-4 right-4">
-                            <button @click="toggleFavorite({{ $property->id }})" class="p-2 bg-black/50 rounded-full hover:bg-black/70 transition-colors">
-                                <i class="{{ $property->is_favorite ? 'fas fa-heart text-red-500' : 'far fa-heart text-white' }}"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="md:w-2/3 p-6">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $property->title }}</h3>
-                                <div class="flex items-center text-gray-600 mb-2">
-                                    <i class="fas fa-map-marker-alt mr-2"></i>
-                                    <span>{{ $property->location }}</span>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Propriété
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Type
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Prix
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Vues
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Statut
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($properties as $property)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        @if($property->images && count($property->images) > 0)
+                                            <img src="{{ asset('storage/' . $property->images[0]) }}" alt="{{ $property->title }}" 
+                                                 class="w-16 h-16 object-cover rounded-lg">
+                                        @else
+                                            <i class="fas fa-home text-gray-400 text-xl"></i>
+                                        @endif
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ Str::limit($property->title, 30) }}</div>
+                                        <div class="text-sm text-gray-500">{{ $property->location }}</div>
+                                    </div>
                                 </div>
-                                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                                    <span><i class="fas fa-bed mr-1"></i>{{ $property->bedrooms }} beds</span>
-                                    <span><i class="fas fa-bath mr-1"></i>{{ $property->bathrooms }} baths</span>
-                                    <span><i class="fas fa-ruler-combined mr-1"></i>{{ $property->surface }} sqm</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    {{ ucfirst($property->type) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ number_format($property->price) }} FCFA
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ number_format($property->views) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if($property->status === 'approved') bg-green-100 text-green-800
+                                    @elseif($property->status === 'pending') bg-yellow-100 text-yellow-800
+                                    @elseif($property->status === 'rejected') bg-red-100 text-red-800
+                                    @elseif($property->status === 'sold') bg-blue-100 text-blue-800
+                                    @else bg-gray-100 text-gray-800
+                                    @endif">
+                                    @if($property->status === 'approved') Approuvé
+                                    @elseif($property->status === 'pending') En attente
+                                    @elseif($property->status === 'rejected') Rejeté
+                                    @elseif($property->status === 'sold') Vendu
+                                    @else {{ ucfirst($property->status) }}
+                                    @endif
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $property->created_at->format('d/m/Y') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{{ route('properties.show', $property) }}" 
+                                       class="text-blue-600 hover:text-blue-900">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ route('properties.edit', $property) }}" 
+                                       class="text-yellow-600 hover:text-yellow-900">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    @if($property->status === 'approved' && !$property->is_crowdfundable)
+                                    <button onclick="createCrowdfunding({{ $property->id }})" 
+                                            class="text-green-600 hover:text-green-900">
+                                        <i class="fas fa-coins"></i>
+                                    </button>
+                                    @endif
+                                    <button onclick="deleteProperty({{ $property->id }})" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-2xl font-bold text-blue-600">{{ number_format($property->price) }} FCFA</p>
-                                <p class="text-sm text-gray-500">{{ ucfirst($property->type) }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Statistics -->
-                        <div class="grid grid-cols-3 gap-4 mb-4 text-center">
-                            <div class="bg-blue-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-600">Views</p>
-                                <p class="font-bold text-blue-600">{{ $property->views }}</p>
-                            </div>
-                            <div class="bg-green-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-600">Leads</p>
-                                <p class="font-bold text-green-600">{{ $property->contacts }}</p>
-                            </div>
-                            <div class="bg-purple-50 p-3 rounded-lg">
-                                <p class="text-sm text-gray-600">Favorites</p>
-                                <p class="font-bold text-purple-600">{{ $property->favorite_count }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex flex-wrap gap-2">
-                            <button @click="viewProperty({{ $property->id }})" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
-                                <i class="fas fa-eye mr-1"></i> View
-                            </button>
-                            <button @click="editProperty({{ $property->id }})" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors text-sm">
-                                <i class="fas fa-edit mr-1"></i> Edit
-                            </button>
-                            <button @click="promoteProperty({{ $property->id }})" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm">
-                                <i class="fas fa-bullhorn mr-1"></i> Promote
-                            </button>
-                            <button @click="deleteProperty({{ $property->id }})" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm">
-                                <i class="fas fa-trash mr-1"></i> Delete
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-home text-4xl text-gray-300 mb-4"></i>
+                                <p>Aucune propriété trouvée</p>
+                                <a href="{{ route('properties.create') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                    Créer votre première propriété
+                                </a>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        @endforeach
+        </div>
+
+        <!-- Pagination -->
+        @if($properties->hasPages())
+        <div class="mt-8">
+            {{ $properties->links() }}
+        </div>
+        @endif
     </div>
 </div>
-</body>
-</html>
+
+<script>
+function createCrowdfunding(propertyId) {
+    if (confirm('Voulez-vous créer un projet de crowdfunding pour cette propriété ?')) {
+        // TODO: Implémenter la création de projet crowdfunding
+        window.location.href = '/crowdfunding/create?property=' + propertyId;
+    }
+}
+
+function deleteProperty(propertyId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette propriété ? Cette action est irréversible.')) {
+        // TODO: Implémenter la suppression de la propriété
+        alert('Supprimer propriété ' + propertyId);
+    }
+}
+</script>
+@endsection

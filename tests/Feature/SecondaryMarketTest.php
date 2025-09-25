@@ -78,15 +78,15 @@ class SecondaryMarketTest extends TestCase
     /** @test */
     public function it_can_create_a_secondary_market_listing()
     {
+        $this->actingAs($this->investor);
+        
         $data = [
-            'user_id' => $this->investor->id,
-            'crowdfunding_investment_id' => $this->investment->id,
             'shares_for_sale' => 50,
             'price_per_share' => 12000,
             'description' => 'Selling half of my shares'
         ];
         
-        $listing = $this->secondaryMarketService->createListing($data);
+        $listing = $this->secondaryMarketService->createListing($this->investment, $data);
         
         $this->assertNotNull($listing);
         $this->assertEquals($this->investor->id, $listing->user_id);
@@ -99,25 +99,26 @@ class SecondaryMarketTest extends TestCase
     /** @test */
     public function it_can_make_an_offer_on_listing()
     {
-        $listing = SecondaryMarketListing::create([
-            'user_id' => $this->investor->id,
-            'crowdfunding_investment_id' => $this->investment->id,
+        $this->actingAs($this->investor);
+        
+        $listing = $this->secondaryMarketService->createListing($this->investment, [
             'shares_for_sale' => 50,
             'price_per_share' => 12000,
-            'total_price' => 600000,
-            'status' => 'active',
-            'expires_at' => now()->addDays(30)
+            'description' => 'Test listing'
         ]);
         
+        $this->actingAs($this->buyer);
+        
         $offerData = [
-            'user_id' => $this->buyer->id,
-            'secondary_market_listing_id' => $listing->id,
             'shares_requested' => 25,
             'offer_price_per_share' => 11500,
             'message' => 'Interested in buying half'
         ];
         
-        $offer = $this->secondaryMarketService->makeOffer($offerData);
+        $offer = $this->secondaryMarketService->makeOffer(array_merge($offerData, [
+            'secondary_market_listing_id' => $listing->id,
+            'user_id' => $this->buyer->id
+        ]));
         
         $this->assertNotNull($offer);
         $this->assertEquals($this->buyer->id, $offer->user_id);
@@ -130,24 +131,25 @@ class SecondaryMarketTest extends TestCase
     /** @test */
     public function it_can_accept_an_offer()
     {
-        $listing = SecondaryMarketListing::create([
-            'user_id' => $this->investor->id,
-            'crowdfunding_investment_id' => $this->investment->id,
+        $this->actingAs($this->investor);
+        
+        $listing = $this->secondaryMarketService->createListing($this->investment, [
             'shares_for_sale' => 50,
             'price_per_share' => 12000,
-            'total_price' => 600000,
-            'status' => 'active',
-            'expires_at' => now()->addDays(30)
+            'description' => 'Test listing'
         ]);
         
-        $offer = SecondaryMarketOffer::create([
-            'user_id' => $this->buyer->id,
+        $this->actingAs($this->buyer);
+        
+        $offer = $this->secondaryMarketService->makeOffer([
             'secondary_market_listing_id' => $listing->id,
+            'user_id' => $this->buyer->id,
             'shares_requested' => 25,
             'offer_price_per_share' => 11500,
-            'total_offer_amount' => 287500,
-            'status' => 'pending'
+            'message' => 'Test offer'
         ]);
+        
+        $this->actingAs($this->investor);
         
         $this->secondaryMarketService->acceptOffer($offer);
         
@@ -164,27 +166,28 @@ class SecondaryMarketTest extends TestCase
     /** @test */
     public function it_transfers_money_correctly_when_offer_is_accepted()
     {
-        $listing = SecondaryMarketListing::create([
-            'user_id' => $this->investor->id,
-            'crowdfunding_investment_id' => $this->investment->id,
+        $this->actingAs($this->investor);
+        
+        $listing = $this->secondaryMarketService->createListing($this->investment, [
             'shares_for_sale' => 50,
             'price_per_share' => 12000,
-            'total_price' => 600000,
-            'status' => 'active',
-            'expires_at' => now()->addDays(30)
+            'description' => 'Test listing'
         ]);
         
-        $offer = SecondaryMarketOffer::create([
-            'user_id' => $this->buyer->id,
+        $this->actingAs($this->buyer);
+        
+        $offer = $this->secondaryMarketService->makeOffer([
             'secondary_market_listing_id' => $listing->id,
+            'user_id' => $this->buyer->id,
             'shares_requested' => 25,
             'offer_price_per_share' => 11500,
-            'total_offer_amount' => 287500,
-            'status' => 'pending'
+            'message' => 'Test offer'
         ]);
         
         $buyerInitialBalance = $this->buyer->wallet->balance;
         $sellerInitialBalance = $this->investor->wallet->balance;
+        
+        $this->actingAs($this->investor);
         
         $this->secondaryMarketService->acceptOffer($offer);
         
@@ -196,21 +199,20 @@ class SecondaryMarketTest extends TestCase
     /** @test */
     public function it_prevents_self_offers()
     {
-        $listing = SecondaryMarketListing::create([
-            'user_id' => $this->investor->id,
-            'crowdfunding_investment_id' => $this->investment->id,
+        $this->actingAs($this->investor);
+        
+        $listing = $this->secondaryMarketService->createListing($this->investment, [
             'shares_for_sale' => 50,
             'price_per_share' => 12000,
-            'total_price' => 600000,
-            'status' => 'active',
-            'expires_at' => now()->addDays(30)
+            'description' => 'Test listing'
         ]);
         
         $offerData = [
-            'user_id' => $this->investor->id, // Même utilisateur que le vendeur
             'secondary_market_listing_id' => $listing->id,
+            'user_id' => $this->investor->id,
             'shares_requested' => 25,
-            'offer_price_per_share' => 11500
+            'offer_price_per_share' => 11500,
+            'message' => 'Test offer'
         ];
         
         $this->expectException(\Exception::class);
@@ -222,21 +224,25 @@ class SecondaryMarketTest extends TestCase
     /** @test */
     public function it_prevents_offers_on_expired_listings()
     {
-        $listing = SecondaryMarketListing::create([
-            'user_id' => $this->investor->id,
-            'crowdfunding_investment_id' => $this->investment->id,
+        $this->actingAs($this->investor);
+        
+        $listing = $this->secondaryMarketService->createListing($this->investment, [
             'shares_for_sale' => 50,
             'price_per_share' => 12000,
-            'total_price' => 600000,
-            'status' => 'active',
-            'expires_at' => now()->subDays(1) // Expiré hier
+            'description' => 'Test listing'
         ]);
         
+        // Marquer l'annonce comme expirée
+        $listing->update(['expires_at' => now()->subDays(1)]);
+        
+        $this->actingAs($this->buyer);
+        
         $offerData = [
-            'user_id' => $this->buyer->id,
             'secondary_market_listing_id' => $listing->id,
+            'user_id' => $this->buyer->id,
             'shares_requested' => 25,
-            'offer_price_per_share' => 11500
+            'offer_price_per_share' => 11500,
+            'message' => 'Test offer'
         ];
         
         $this->expectException(\Exception::class);

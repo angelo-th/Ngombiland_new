@@ -21,7 +21,9 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             {{-- Logo --}}
-                            <img class="h-8 w-8" src="data:image/svg+xml;base64,PHN2Zy..." alt="NGOMBILAND">
+                            <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+                                <i class="fas fa-home text-blue-600 text-xl"></i>
+                            </div>
                             <span class="ml-2 text-white font-bold text-xl">NGOMBILAND</span>
                         </div>
                         <div class="hidden md:block">
@@ -45,8 +47,10 @@
                         {{-- User Profile --}}
                         <div class="relative">
                             <button class="flex items-center text-white space-x-2" onclick="toggleUserMenu()">
-                                <img class="h-8 w-8 rounded-full" src="data:image/svg+xml;base64,PHN2Zy..." alt="Avatar">
-                                <span class="text-sm font-medium">Angelo Mbiock</span>
+                                <div class="h-8 w-8 bg-white rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-blue-600"></i>
+                                </div>
+                                <span class="text-sm font-medium">{{ Auth::user()->name ?? 'Utilisateur' }}</span>
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
                             <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">

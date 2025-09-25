@@ -10,38 +10,53 @@ class RentalDistribution extends Model
     use HasFactory;
 
     protected $fillable = [
-        'property_id',
         'crowdfunding_project_id',
-        'total_rent_amount',
-        'distributed_amount',
+        'total_rental_income',
+        'management_fee_percentage',
+        'management_fee_amount',
+        'net_rental_income',
         'distribution_date',
+        'status',
     ];
 
     protected $casts = [
-        'total_rent_amount' => 'decimal:2',
-        'distributed_amount' => 'decimal:2',
+        'total_rental_income' => 'decimal:2',
+        'management_fee_percentage' => 'decimal:2',
+        'management_fee_amount' => 'decimal:2',
+        'net_rental_income' => 'decimal:2',
         'distribution_date' => 'date',
     ];
 
     // Relations
-    public function property()
-    {
-        return $this->belongsTo(Property::class);
-    }
-
     public function crowdfundingProject()
     {
         return $this->belongsTo(CrowdfundingProject::class);
     }
 
-    public function details()
+    public function distributionDetails()
     {
         return $this->hasMany(RentalDistributionDetail::class);
     }
 
-    public function distributions()
+    // Scopes
+    public function scopePending($query)
     {
-        return $this->hasMany(RentalDistributionDetail::class);
+        return $query->where('status', 'pending');
     }
 
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    // Accesseurs
+    public function getTotalDistributedAttribute()
+    {
+        return $this->distributionDetails()->sum('amount_distributed');
+    }
+
+    public function getRemainingAmountAttribute()
+    {
+        return $this->net_rental_income - $this->total_distributed;
+    }
 }

@@ -41,20 +41,28 @@
             <form method="POST" action="{{ route('login') }}" class="space-y-4">
                 @csrf
 
-                <!-- Phone Number -->
+                <!-- Email -->
                 <div>
-                    <label class="block text-white/80 text-xs font-medium mb-1">Phone number</label>
+                    <label class="block text-white/80 text-xs font-medium mb-1">Email</label>
                     <div class="relative">
                         <input 
-                            type="tel" 
-                            name="phone"
-                            value="{{ old('phone') }}"
-                            class="input-field w-full pl-16 pr-4 py-2.5 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none"
-                            placeholder="6XX XXX XXX"
-                            pattern="[6-9][0-9]{8}"
+                            type="email" 
+                            name="email"
+                            value="{{ old('email') }}"
+                            class="input-field w-full px-3 py-2.5 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none @error('email') border-red-500 @enderror"
+                            placeholder="votre@email.com"
                             required
                         >
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                        </div>
                     </div>
+                    @error('email')
+                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Password -->
@@ -64,7 +72,7 @@
                         <input 
                             type="password" 
                             name="password"
-                            class="input-field w-full px-3 py-2.5 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none"
+                            class="input-field w-full px-3 py-2.5 rounded-lg text-white placeholder-white/50 text-sm focus:outline-none @error('password') border-red-500 @enderror"
                             placeholder="••••••••"
                             required
                         >
@@ -75,6 +83,9 @@
                             </svg>
                         </button>
                     </div>
+                    @error('password')
+                        <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Remember & Forgot -->
@@ -87,10 +98,9 @@
                 </div>
 
                 <!-- Submit Button -->
-               <a href="{{ route('dashboard') }}">
-        <button type="submit" class="primary-btn w-full py-2.5 px-4 rounded-lg text-white font-medium text-sm">
-            sign in
-        </button>
+                <button type="submit" class="primary-btn w-full py-2.5 px-4 rounded-lg text-white font-medium text-sm">
+                    Sign in
+                </button>
                 <!-- Divider -->
                 <div class="relative my-4">
                     <div class="absolute inset-0 flex items-center">
@@ -143,5 +153,45 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.querySelector('input[name="password"]');
+            const toggleButton = document.querySelector('button[onclick="togglePassword()"]');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleButton.innerHTML = `
+                    <svg class="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"/>
+                        <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/>
+                    </svg>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                toggleButton.innerHTML = `
+                    <svg class="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                `;
+            }
+        }
+
+        // Afficher les erreurs de validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const emailInput = document.querySelector('input[name="email"]');
+            const passwordInput = document.querySelector('input[name="password"]');
+
+            // Ajouter des classes d'erreur si nécessaire
+            if (emailInput.classList.contains('border-red-500')) {
+                emailInput.classList.add('border-red-500');
+            }
+            if (passwordInput.classList.contains('border-red-500')) {
+                passwordInput.classList.add('border-red-500');
+            }
+        });
+    </script>
 </body>
 </html>

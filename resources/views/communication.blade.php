@@ -31,7 +31,9 @@
                         <i class="fas fa-arrow-left text-xl"></i>
                     </a>
                     {{-- Logo with asset helper --}}
-                    <img src="{{ asset('logo-ngombiland.png') }}" alt="NGOMBILAND" class="h-10">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-home text-white text-xl"></i>
+                    </div>
                     <h1 class="text-xl font-bold text-gray-800">Centre de Communication</h1>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -42,7 +44,9 @@
                               x-text="unreadNotifications"></span>
                     </button>
                     {{-- Dynamic user avatar --}}
-                    <img :src="user.avatar" alt="Profile" class="w-8 h-8 rounded-full border-2 border-white shadow">
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center border-2 border-white shadow">
+                        <i class="fas fa-user text-gray-600"></i>
+                    </div>
                 </div>
             </div>
         </div>

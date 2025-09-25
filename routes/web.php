@@ -37,7 +37,10 @@ Route::get('/contact', [WelcomeController::class, 'contact'])->name('contact');
 
 // Liste des biens (publique)
 Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
-Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
+
+// Liste des projets crowdfunding (publique)
+Route::get('/crowdfunding', [CrowdfundingController::class, 'index'])->name('crowdfunding.index');
+Route::get('/crowdfunding/{crowdfunding}', [CrowdfundingController::class, 'show'])->name('crowdfunding.show');
 
 // Messages support visiteurs (max 3 si pas connecté)
 Route::post('/support/message', [SupportController::class, 'send'])
@@ -98,7 +101,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/investments/{investment}', [InvestmentController::class, 'show'])->name('investments.show');
 
     // Properties Routes (authentifiés)
-    Route::resource('properties', PropertyController::class)->except(['index', 'show']);
+    Route::resource('properties', PropertyController::class)->except(['index']);
     Route::get('/properties/{property}/crowdfunding/create', [PropertyController::class, 'createCrowdfunding'])->name('properties.crowdfunding.create');
     Route::post('properties/{id}/upload-documents', [PropertyController::class, 'uploadDocuments'])->name('properties.upload');
     Route::get('/properties/create/wizard', function() { return view('properties.wizard'); })->name('properties.wizard');
@@ -107,8 +110,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/investments', [App\Http\Controllers\Crowdfunding\CrowdfundingController::class, 'userInvestments'])->name('investments.index');
     Route::resource('investments', InvestmentController::class)->except(['index']);
 
-    // Crowdfunding Routes
-    Route::resource('crowdfunding', CrowdfundingController::class);
+    // Crowdfunding Routes (authentifiés)
+    Route::get('/crowdfunding/create', [CrowdfundingController::class, 'create'])->name('crowdfunding.create');
+    Route::post('/crowdfunding', [CrowdfundingController::class, 'store'])->name('crowdfunding.store');
+    Route::get('/crowdfunding/{crowdfunding}/edit', [CrowdfundingController::class, 'edit'])->name('crowdfunding.edit');
+    Route::put('/crowdfunding/{crowdfunding}', [CrowdfundingController::class, 'update'])->name('crowdfunding.update');
+    Route::delete('/crowdfunding/{crowdfunding}', [CrowdfundingController::class, 'destroy'])->name('crowdfunding.destroy');
     Route::post('/crowdfunding/{crowdfunding}/invest', [CrowdfundingController::class, 'invest'])->name('crowdfunding.invest');
     Route::post('/crowdfunding/{crowdfunding}/activate', [CrowdfundingController::class, 'activate'])->name('crowdfunding.activate');
 
@@ -167,7 +174,20 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
     Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    
+    // Gestion des propriétés
+    Route::get('/properties', [AdminController::class, 'properties'])->name('admin.properties');
+    Route::post('/properties/{property}/approve', [AdminController::class, 'approveProperty'])->name('admin.properties.approve');
+    Route::post('/properties/{property}/reject', [AdminController::class, 'rejectProperty'])->name('admin.properties.reject');
+    
+    // Gestion du crowdfunding
+    Route::get('/crowdfunding', [AdminController::class, 'crowdfunding'])->name('admin.crowdfunding');
+    Route::post('/crowdfunding/{project}/approve', [AdminController::class, 'approveCrowdfunding'])->name('admin.crowdfunding.approve');
+    Route::post('/crowdfunding/{project}/reject', [AdminController::class, 'rejectCrowdfunding'])->name('admin.crowdfunding.reject');
 });
 
 // ======================= 🔄 ROUTES LARAVEL PAR DÉFAUT =======================
 Auth::routes(['verify' => true]);
+
+// Route publique pour voir les détails d'une propriété (doit être à la fin pour éviter les conflits)
+Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');

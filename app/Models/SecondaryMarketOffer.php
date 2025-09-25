@@ -22,7 +22,6 @@ class SecondaryMarketOffer extends Model
     ];
 
     protected $casts = [
-        'shares_requested' => 'integer',
         'offer_price_per_share' => 'decimal:2',
         'total_offer_amount' => 'decimal:2',
         'accepted_at' => 'datetime',
@@ -56,19 +55,8 @@ class SecondaryMarketOffer extends Model
         return $query->where('status', 'rejected');
     }
 
-    // Accesseurs
-    public function getIsPendingAttribute()
+    public function scopeCancelled($query)
     {
-        return $this->status === 'pending';
-    }
-
-    public function getIsAcceptedAttribute()
-    {
-        return $this->status === 'accepted';
-    }
-
-    public function getIsRejectedAttribute()
-    {
-        return $this->status === 'rejected';
+        return $query->where('status', 'cancelled');
     }
 }

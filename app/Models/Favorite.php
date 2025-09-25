@@ -14,6 +14,7 @@ class Favorite extends Model
         'property_id',
     ];
 
+    // Relations
     public function user()
     {
         return $this->belongsTo(User::class);

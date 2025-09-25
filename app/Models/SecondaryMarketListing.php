@@ -22,11 +22,9 @@ class SecondaryMarketListing extends Model
     ];
 
     protected $casts = [
-        'shares_for_sale' => 'integer',
         'price_per_share' => 'decimal:2',
         'total_price' => 'decimal:2',
         'expires_at' => 'datetime',
-        'sold_at' => 'datetime',
     ];
 
     // Relations
@@ -40,18 +38,6 @@ class SecondaryMarketListing extends Model
         return $this->belongsTo(CrowdfundingInvestment::class);
     }
 
-    public function crowdfundingProject()
-    {
-        return $this->hasOneThrough(
-            CrowdfundingProject::class,
-            CrowdfundingInvestment::class,
-            'id',
-            'id',
-            'crowdfunding_investment_id',
-            'crowdfunding_project_id'
-        );
-    }
-
     public function offers()
     {
         return $this->hasMany(SecondaryMarketOffer::class);
@@ -60,13 +46,7 @@ class SecondaryMarketListing extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('status', 'active')
-                    ->where('expires_at', '>', now());
-    }
-
-    public function scopeExpired($query)
-    {
-        return $query->where('expires_at', '<=', now());
+        return $query->where('status', 'active');
     }
 
     public function scopeSold($query)
@@ -74,30 +54,19 @@ class SecondaryMarketListing extends Model
         return $query->where('status', 'sold');
     }
 
+    public function scopeExpired($query)
+    {
+        return $query->where('status', 'expired');
+    }
+
     // Accesseurs
     public function getIsExpiredAttribute()
     {
-        return $this->expires_at < now();
+        return $this->expires_at && $this->expires_at < now();
     }
 
-    public function getDaysRemainingAttribute()
+    public function getRemainingSharesAttribute()
     {
-        return max(0, now()->diffInDays($this->expires_at, false));
-    }
-
-    public function getOriginalPricePerShareAttribute()
-    {
-        return $this->crowdfundingInvestment->price_per_share;
-    }
-
-    public function getPriceDifferenceAttribute()
-    {
-        return $this->price_per_share - $this->original_price_per_share;
-    }
-
-    public function getPriceDifferencePercentageAttribute()
-    {
-        if ($this->original_price_per_share == 0) return 0;
-        return (($this->price_per_share - $this->original_price_per_share) / $this->original_price_per_share) * 100;
+        return $this->shares_for_sale - $this->offers()->where('status', 'accepted')->sum('shares_requested');
     }
 }

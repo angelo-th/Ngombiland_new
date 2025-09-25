@@ -2,163 +2,210 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PaymentService;
+use App\Models\Transaction;
+use App\Models\Wallet;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
-    protected $paymentService;
-
-    public function __construct(PaymentService $paymentService)
+    public function __construct()
     {
-        $this->paymentService = $paymentService;
+        $this->middleware('auth');
     }
 
-    /**
-     * Afficher la page de paiement
-     */
     public function index()
     {
-        $userId = Auth::id();
-        $wallet = Auth::user()->wallet;
-        $stats = $this->paymentService->getPaymentStats($userId);
-        $recentTransactions = $this->paymentService->getPaymentHistory($userId, 10);
+        $user = Auth::user();
+        
+        // Créer un portefeuille s'il n'existe pas
+        if (!$user->wallet) {
+            $user->wallet()->create(['balance' => 0]);
+        }
 
-        return view('payments.index', compact('wallet', 'stats', 'recentTransactions'));
+        return view('payments.index');
     }
 
-    /**
-     * Afficher le formulaire de rechargement
-     */
     public function showTopupForm()
     {
         return view('payments.topup');
     }
 
-    /**
-     * Traiter un rechargement
-     */
     public function topup(Request $request)
     {
         $request->validate([
             'amount' => 'required|numeric|min:1000',
-            'method' => 'required|in:mobile_money,manual',
-            'phone_number' => 'required_if:method,mobile_money|string|min:9',
-            'provider' => 'required_if:method,mobile_money|in:MTN,Orange,Express Union',
+            'payment_method' => 'required|in:mtn,orange,express',
+            'phone' => 'required|string|regex:/^6[0-9]{8}$/',
         ]);
 
+        $user = Auth::user();
+        $amount = $request->amount;
+        $fees = max($amount * 0.01, 100); // 1% avec minimum 100 FCFA
+        $total = $amount + $fees;
+
         try {
-            $userId = Auth::id();
-            $amount = $request->amount;
+            DB::beginTransaction();
 
-            if ($request->method === 'mobile_money') {
-                $transaction = $this->paymentService->simulateMobileMoneyPayment(
-                    $userId,
-                    $amount,
-                    $request->phone_number,
-                    $request->provider
-                );
-
-                return redirect()->route('payments.index')
-                    ->with('success', 'Paiement Mobile Money en cours de traitement...');
-            } else {
-                $transaction = $this->paymentService->topupWallet(
-                    $userId,
-                    $amount,
-                    'manual',
-                    'Rechargement manuel'
-                );
-
-                return redirect()->route('payments.index')
-                    ->with('success', 'Portefeuille rechargé avec succès !');
+            // Créer le portefeuille s'il n'existe pas
+            if (!$user->wallet) {
+                $user->wallet()->create(['balance' => 0]);
             }
 
+            // Créer la transaction
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'wallet_id' => $user->wallet->id,
+                'type' => 'deposit',
+                'amount' => $amount,
+                'description' => 'Alimentation du portefeuille via ' . strtoupper($request->payment_method),
+                'status' => 'pending',
+                'metadata' => [
+                    'payment_method' => $request->payment_method,
+                    'phone' => $request->phone,
+                    'fees' => $fees,
+                    'total_paid' => $total,
+                ],
+            ]);
+
+            // Simuler le processus de paiement (dans un vrai projet, intégrer avec l'API de paiement)
+            $this->processPayment($transaction, $request->payment_method, $request->phone, $total);
+
+            DB::commit();
+
+            return redirect()->route('payments.index')
+                ->with('success', 'Transaction en cours de traitement. Votre portefeuille sera crédité une fois le paiement confirmé.');
+
         } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage())->withInput();
+            DB::rollBack();
+            return back()->with('error', 'Une erreur est survenue lors du traitement de votre demande.');
         }
     }
 
-    /**
-     * Afficher le formulaire de retrait
-     */
     public function showWithdrawForm()
     {
         return view('payments.withdraw');
     }
 
-    /**
-     * Traiter un retrait
-     */
     public function withdraw(Request $request)
     {
         $request->validate([
             'amount' => 'required|numeric|min:1000',
-            'method' => 'required|in:mobile_money,bank_transfer',
-            'phone_number' => 'required_if:method,mobile_money|string|min:9',
-            'bank_account' => 'required_if:method,bank_transfer|string',
+            'payment_method' => 'required|in:mtn,orange,express',
+            'phone' => 'required|string|regex:/^6[0-9]{8}$/',
         ]);
 
-        try {
-            $userId = Auth::id();
-            $amount = $request->amount;
+        $user = Auth::user();
+        $amount = $request->amount;
+        $fees = max($amount * 0.01, 100); // 1% avec minimum 100 FCFA
+        $total = $amount + $fees;
 
-            $transaction = $this->paymentService->withdrawFromWallet(
-                $userId,
-                $amount,
-                $request->method,
-                "Retrait via {$request->method}"
-            );
+        // Vérifier que l'utilisateur a suffisamment de fonds
+        if ($user->wallet->balance < $total) {
+            return back()->with('error', 'Solde insuffisant. Vous devez avoir au moins ' . number_format($total) . ' FCFA.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Créer la transaction
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'wallet_id' => $user->wallet->id,
+                'type' => 'withdrawal',
+                'amount' => $amount,
+                'description' => 'Retrait du portefeuille vers ' . strtoupper($request->payment_method),
+                'status' => 'pending',
+                'metadata' => [
+                    'payment_method' => $request->payment_method,
+                    'phone' => $request->phone,
+                    'fees' => $fees,
+                    'total_deducted' => $total,
+                ],
+            ]);
+
+            // Débiter le portefeuille
+            $user->wallet->balance -= $total;
+            $user->wallet->save();
+
+            // Simuler le processus de retrait
+            $this->processWithdrawal($transaction, $request->payment_method, $request->phone, $amount);
+
+            DB::commit();
 
             return redirect()->route('payments.index')
-                ->with('success', 'Retrait effectué avec succès !');
+                ->with('success', 'Demande de retrait en cours de traitement. Les fonds seront transférés dans les 24h.');
 
         } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage())->withInput();
+            DB::rollBack();
+            return back()->with('error', 'Une erreur est survenue lors du traitement de votre demande.');
         }
     }
 
-    /**
-     * Afficher l'historique des transactions
-     */
     public function history()
     {
-        $userId = Auth::id();
-        $transactions = $this->paymentService->getPaymentHistory($userId, 50);
+        $transactions = Auth::user()->transactions()
+            ->latest()
+            ->paginate(20);
 
         return view('payments.history', compact('transactions'));
     }
 
-    /**
-     * API pour obtenir le solde du portefeuille
-     */
     public function getBalance()
     {
-        $wallet = Auth::user()->wallet;
-        
+        $user = Auth::user();
         return response()->json([
-            'balance' => $wallet ? $wallet->balance : 0,
-            'currency' => 'XAF'
+            'balance' => $user->wallet ? $user->wallet->balance : 0
         ]);
     }
 
-    /**
-     * API pour vérifier si un paiement est possible
-     */
     public function checkPayment(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0',
+            'transaction_id' => 'required|exists:transactions,id'
         ]);
 
-        $wallet = Auth::user()->wallet;
-        $canPay = $wallet && $wallet->balance >= $request->amount;
+        $transaction = Transaction::findOrFail($request->transaction_id);
+        
+        // Vérifier que la transaction appartient à l'utilisateur
+        if ($transaction->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Transaction non trouvée'], 404);
+        }
 
         return response()->json([
-            'can_pay' => $canPay,
-            'current_balance' => $wallet ? $wallet->balance : 0,
-            'required_amount' => $request->amount,
-            'shortfall' => $canPay ? 0 : $request->amount - ($wallet ? $wallet->balance : 0)
+            'status' => $transaction->status,
+            'amount' => $transaction->amount,
+            'description' => $transaction->description,
+            'created_at' => $transaction->created_at->format('d/m/Y H:i'),
         ]);
+    }
+
+    private function processPayment($transaction, $method, $phone, $amount)
+    {
+        // Dans un vrai projet, intégrer avec l'API de paiement mobile
+        // Pour la démo, on simule un succès après 5 secondes
+        
+        // Simuler le délai de traitement
+        sleep(2);
+        
+        // Marquer comme terminé
+        $transaction->update(['status' => 'completed']);
+        
+        // Créditer le portefeuille
+        $transaction->wallet->balance += $transaction->amount;
+        $transaction->wallet->save();
+    }
+
+    private function processWithdrawal($transaction, $method, $phone, $amount)
+    {
+        // Dans un vrai projet, intégrer avec l'API de paiement mobile
+        // Pour la démo, on simule un succès après 2 secondes
+        
+        // Simuler le délai de traitement
+        sleep(1);
+        
+        // Marquer comme terminé
+        $transaction->update(['status' => 'completed']);
     }
 }

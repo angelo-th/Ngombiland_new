@@ -1,228 +1,225 @@
 @extends('layouts.app')
 
-@section('title', 'Recharger mon Portefeuille - NGOMBILAND')
+@section('title', 'Alimenter le Portefeuille - NGOMBILAND')
 
 @section('content')
 <div class="min-h-screen bg-gray-50">
     <!-- Header -->
     <div class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="py-6">
-                <div class="flex items-center">
-                    <a href="{{ route('payments.index') }}" class="text-gray-400 hover:text-gray-600 mr-4">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                    <div>
-                        <h1 class="text-3xl font-bold text-gray-900">Recharger mon Portefeuille</h1>
-                        <p class="text-gray-600">Ajoutez des fonds à votre portefeuille</p>
-                    </div>
+            <div class="flex justify-between items-center py-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Alimenter le Portefeuille</h1>
+                    <p class="text-gray-600">Ajoutez des fonds à votre portefeuille via Mobile Money</p>
                 </div>
+                <a href="{{ route('payments.index') }}" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Retour
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Formulaire de rechargement -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-6">Méthodes de paiement</h2>
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <!-- Solde actuel -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-medium text-blue-900">Solde Actuel</h3>
+                        <p class="text-3xl font-bold text-blue-600">{{ number_format(auth()->user()->wallet->balance ?? 0) }} FCFA</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-wallet text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire d'alimentation -->
+            <form method="POST" action="{{ route('payments.topup') }}" id="topupForm">
+                @csrf
                 
-                <form action="{{ route('payments.topup') }}" method="POST" id="topupForm">
-                    @csrf
-                    
+                <div class="space-y-6">
                     <!-- Montant -->
-                    <div class="mb-6">
+                    <div>
                         <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                            Montant à recharger (FCFA)
+                            Montant à ajouter (FCFA) *
                         </label>
-                        <input type="number" 
-                               id="amount" 
-                               name="amount" 
-                               min="100" 
-                               step="100" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Entrez le montant"
-                               required>
-                        <p class="text-sm text-gray-500 mt-1">Montant minimum: 100 FCFA</p>
+                        <div class="relative">
+                            <input type="number" id="amount" name="amount" 
+                                   class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
+                                   placeholder="50000" min="1000" step="100" required>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">FCFA</span>
+                            </div>
+                        </div>
+                        @error('amount')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Montants prédéfinis -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Montants rapides</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <button type="button" onclick="setAmount(10000)" 
+                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                                10 000 FCFA
+                            </button>
+                            <button type="button" onclick="setAmount(25000)" 
+                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                                25 000 FCFA
+                            </button>
+                            <button type="button" onclick="setAmount(50000)" 
+                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                                50 000 FCFA
+                            </button>
+                            <button type="button" onclick="setAmount(100000)" 
+                                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center">
+                                100 000 FCFA
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Méthode de paiement -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-3">
-                            Méthode de paiement
-                        </label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Méthode de paiement</label>
                         <div class="space-y-3">
-                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                                <input type="radio" name="provider" value="mtn_momo" class="text-blue-600 focus:ring-blue-500" required>
-                                <div class="ml-3 flex items-center">
-                                    <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-mobile-alt text-yellow-600"></i>
-                                    </div>
+                            <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" id="mtn" name="payment_method" value="mtn" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" checked>
+                                <label for="mtn" class="ml-3 flex items-center">
+                                    <img src="https://via.placeholder.com/40x40/FF6B35/FFFFFF?text=MTN" alt="MTN" class="w-10 h-10 rounded mr-3">
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">MTN Mobile Money</div>
-                                        <div class="text-sm text-gray-500">Paiement via MTN MoMo</div>
+                                        <p class="text-sm font-medium text-gray-900">MTN Mobile Money</p>
+                                        <p class="text-sm text-gray-500">Paiement via MTN MoMo</p>
                                     </div>
-                                </div>
-                            </label>
+                                </label>
+                            </div>
 
-                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                                <input type="radio" name="provider" value="orange_money" class="text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3 flex items-center">
-                                    <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fas fa-mobile-alt text-orange-600"></i>
-                                    </div>
+                            <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" id="orange" name="payment_method" value="orange" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <label for="orange" class="ml-3 flex items-center">
+                                    <img src="https://via.placeholder.com/40x40/FF6600/FFFFFF?text=OM" alt="Orange Money" class="w-10 h-10 rounded mr-3">
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">Orange Money</div>
-                                        <div class="text-sm text-gray-500">Paiement via Orange Money</div>
+                                        <p class="text-sm font-medium text-gray-900">Orange Money</p>
+                                        <p class="text-sm text-gray-500">Paiement via Orange Money</p>
                                     </div>
-                                </div>
-                            </label>
+                                </label>
+                            </div>
 
-                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                                <input type="radio" name="provider" value="paypal" class="text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3 flex items-center">
-                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fab fa-paypal text-blue-600"></i>
-                                    </div>
+                            <div class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" id="express" name="payment_method" value="express" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <label for="express" class="ml-3 flex items-center">
+                                    <img src="https://via.placeholder.com/40x40/00A651/FFFFFF?text=EX" alt="Express Union" class="w-10 h-10 rounded mr-3">
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">PayPal</div>
-                                        <div class="text-sm text-gray-500">Paiement via PayPal</div>
+                                        <p class="text-sm font-medium text-gray-900">Express Union</p>
+                                        <p class="text-sm text-gray-500">Paiement via Express Union</p>
                                     </div>
-                                </div>
-                            </label>
-
-                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-                                <input type="radio" name="provider" value="stripe" class="text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3 flex items-center">
-                                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                                        <i class="fab fa-stripe text-purple-600"></i>
-                                    </div>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">Carte bancaire</div>
-                                        <div class="text-sm text-gray-500">Paiement via Stripe</div>
-                                    </div>
-                                </div>
-                            </label>
+                                </label>
+                            </div>
                         </div>
+                        @error('payment_method')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <!-- Numéro de téléphone (pour Mobile Money) -->
-                    <div id="phoneField" class="mb-6 hidden">
-                        <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
-                            Numéro de téléphone
+                    <!-- Numéro de téléphone -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                            Numéro de téléphone *
                         </label>
-                        <input type="tel" 
-                               id="phone_number" 
-                               name="phone_number" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Ex: +237 6XX XXX XXX">
-                        <p class="text-sm text-gray-500 mt-1">Format: +237 suivi de votre numéro</p>
-                    </div>
-
-                    <!-- Bouton de soumission -->
-                    <button type="submit" 
-                            class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium">
-                        <i class="fas fa-plus mr-2"></i>
-                        Recharger mon portefeuille
-                    </button>
-                </form>
-            </div>
-
-            <!-- Informations et aide -->
-            <div class="space-y-6">
-                <!-- Solde actuel -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Solde actuel</h3>
-                    <div class="text-center">
-                        <div class="text-4xl font-bold text-gray-900 mb-2">
-                            {{ number_format(Auth::user()->wallet->balance ?? 0) }} FCFA
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">+237</span>
+                            </div>
+                            <input type="tel" id="phone" name="phone" 
+                                   class="w-full pl-12 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   placeholder="6XX XXX XXX" required>
                         </div>
-                        <p class="text-gray-600">Disponible dans votre portefeuille</p>
+                        @error('phone')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Résumé de la transaction -->
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Résumé de la transaction</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Montant à ajouter:</span>
+                                <span class="font-semibold" id="amount-display">0 FCFA</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Frais de transaction:</span>
+                                <span class="font-semibold" id="fees-display">0 FCFA</span>
+                            </div>
+                            <div class="border-t border-gray-200 pt-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-900 font-medium">Total à payer:</span>
+                                    <span class="font-bold text-lg" id="total-display">0 FCFA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boutons d'action -->
+                    <div class="flex space-x-4">
+                        <a href="{{ route('payments.index') }}" 
+                           class="flex-1 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-center">
+                            Annuler
+                        </a>
+                        <button type="submit" 
+                                class="flex-1 bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-credit-card mr-2"></i>
+                            Procéder au paiement
+                        </button>
                     </div>
                 </div>
+            </form>
+        </div>
 
-                <!-- Instructions -->
-                <div class="bg-blue-50 rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-blue-900 mb-4">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Instructions
-                    </h3>
-                    <ul class="space-y-2 text-sm text-blue-800">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-blue-600 mr-2 mt-0.5"></i>
-                            Entrez le montant que vous souhaitez recharger
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-blue-600 mr-2 mt-0.5"></i>
-                            Sélectionnez votre méthode de paiement préférée
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-blue-600 mr-2 mt-0.5"></i>
-                            Pour Mobile Money, confirmez la transaction sur votre téléphone
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-blue-600 mr-2 mt-0.5"></i>
-                            Les fonds seront ajoutés à votre portefeuille une fois confirmés
-                        </li>
-                    </ul>
+        <!-- Informations importantes -->
+        <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-info-circle text-yellow-400"></i>
                 </div>
-
-                <!-- Sécurité -->
-                <div class="bg-green-50 rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-green-900 mb-4">
-                        <i class="fas fa-shield-alt mr-2"></i>
-                        Sécurité
-                    </h3>
-                    <ul class="space-y-2 text-sm text-green-800">
-                        <li class="flex items-start">
-                            <i class="fas fa-lock text-green-600 mr-2 mt-0.5"></i>
-                            Toutes les transactions sont sécurisées et chiffrées
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-user-shield text-green-600 mr-2 mt-0.5"></i>
-                            Vos informations personnelles sont protégées
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-history text-green-600 mr-2 mt-0.5"></i>
-                            Historique complet de toutes vos transactions
-                        </li>
-                    </ul>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Informations importantes</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>Le montant minimum d'alimentation est de 1 000 FCFA</li>
+                            <li>Les frais de transaction sont de 1% du montant (minimum 100 FCFA)</li>
+                            <li>Votre portefeuille sera crédité immédiatement après confirmation du paiement</li>
+                            <li>Assurez-vous que votre numéro de téléphone est correct</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const phoneField = document.getElementById('phoneField');
-    const phoneInput = document.getElementById('phone_number');
-    const providerRadios = document.querySelectorAll('input[name="provider"]');
-    
-    providerRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'mtn_momo' || this.value === 'orange_money') {
-                phoneField.classList.remove('hidden');
-                phoneInput.required = true;
-            } else {
-                phoneField.classList.add('hidden');
-                phoneInput.required = false;
-            }
-        });
-    });
-    
-    // Formatage du numéro de téléphone
-    phoneInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\D/g, '');
-        if (value.startsWith('237')) {
-            value = '+' + value;
-        } else if (value.startsWith('6') || value.startsWith('2')) {
-            value = '+237' + value;
-        }
-        e.target.value = value;
-    });
-});
+function setAmount(amount) {
+    document.getElementById('amount').value = amount;
+    updateSummary();
+}
+
+function updateSummary() {
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const fees = Math.max(amount * 0.01, 100); // 1% avec minimum 100 FCFA
+    const total = amount + fees;
+
+    document.getElementById('amount-display').textContent = new Intl.NumberFormat('fr-FR').format(amount) + ' FCFA';
+    document.getElementById('fees-display').textContent = new Intl.NumberFormat('fr-FR').format(fees) + ' FCFA';
+    document.getElementById('total-display').textContent = new Intl.NumberFormat('fr-FR').format(total) + ' FCFA';
+}
+
+// Mettre à jour le résumé quand le montant change
+document.getElementById('amount').addEventListener('input', updateSummary);
+
+// Initialiser le résumé
+updateSummary();
 </script>
-@endpush
 @endsection

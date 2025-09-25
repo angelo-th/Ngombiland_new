@@ -12,14 +12,16 @@ class RentalDistributionDetail extends Model
     protected $fillable = [
         'rental_distribution_id',
         'user_id',
-        'investment_id',
         'shares_owned',
-        'amount_received',
+        'percentage_ownership',
+        'amount_distributed',
+        'status',
     ];
 
     protected $casts = [
         'shares_owned' => 'integer',
-        'amount_received' => 'decimal:2',
+        'percentage_ownership' => 'decimal:4',
+        'amount_distributed' => 'decimal:2',
     ];
 
     // Relations
@@ -33,9 +35,19 @@ class RentalDistributionDetail extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function investment()
+    // Scopes
+    public function scopePending($query)
     {
-        return $this->belongsTo(\App\Models\CrowdfundingInvestment::class);
+        return $query->where('status', 'pending');
     }
 
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', 'completed');
+    }
+
+    public function scopeFailed($query)
+    {
+        return $query->where('status', 'failed');
+    }
 }

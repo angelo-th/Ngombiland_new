@@ -13,7 +13,8 @@ class PropertyController extends Controller
         if (auth()->check()) {
             $query = auth()->user()->properties()->with('owner');
         } else {
-            $query = Property::with('owner');
+            // Pour les visiteurs non connectés, afficher seulement les propriétés approuvées
+            $query = Property::where('status', 'approved')->with('owner');
         }
 
         // Filtres de recherche

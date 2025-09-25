@@ -12,7 +12,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">Projets Crowdfunding</h1>
                     <p class="text-gray-600">Découvrez et investissez dans des projets immobiliers prometteurs</p>
                 </div>
-                @if(Auth::user()->isProprietor())
+                @if(Auth::check() && Auth::user()->isProprietor())
                 <a href="{{ route('crowdfunding.create') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
                     <i class="fas fa-plus mr-2"></i>
                     Créer un projet

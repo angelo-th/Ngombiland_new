@@ -1,127 +1,229 @@
-{{-- resources/views/admin/statistics.blade.php --}}
-@extends('layouts.admin') {{-- Votre layout admin principal --}}
+@extends('layouts.app')
 
 @section('title', 'Statistiques - NGOMBILAND')
 
 @section('content')
-<div class="flex h-screen">
-    {{-- Sidebar --}}
-    <div class="w-64 bg-blue-800 text-white p-4">
-        <div class="flex items-center mb-8">
-            <img src="{{ asset('images/logo.png') }}" alt="NGOMBILAND" class="h-10 mr-2">
-            <span class="font-bold">ADMIN</span>
-        </div>
-        <nav>
-            <ul>
-                <li class="mb-2">
-                    <a href="{{ route('admin.dashboard') }}" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                        <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="{{ route('admin.users') }}" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                        <i class="fas fa-users mr-3"></i> Utilisateurs
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="{{ route('admin.properties') }}" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                        <i class="fas fa-home mr-3"></i> Biens Immobiliers
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="{{ route('admin.crowdfunding') }}" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                        <i class="fas fa-project-diagram mr-3"></i> Projets Crowdfunding
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="{{ route('admin.transactions') }}" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                        <i class="fas fa-money-bill-wave mr-3"></i> Transactions
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="{{ route('admin.statistics') }}" class="flex items-center p-2 bg-blue-700 rounded">
-                        <i class="fas fa-chart-bar mr-3"></i> Statistiques
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="{{ route('admin.chat') }}" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                        <i class="fas fa-message mr-3"></i> Chat Support
-                    </a>
-                </li>
-                <li class="mb-2">
-                    <a href="{{ route('admin.settings') }}" class="flex items-center p-2 hover:bg-blue-700 rounded">
-                        <i class="fas fa-cog mr-3"></i> Paramètres
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-
-    {{-- Main Content --}}
-    <div class="flex-1 bg-white p-6 overflow-y-auto">
-        <h2 class="text-xl font-bold mb-6">Statistiques de la Plateforme</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-4 rounded-lg border">
-                <h3 class="font-bold mb-4">Activité des Utilisateurs</h3>
-                <canvas id="userActivityChart" height="200"></canvas>
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Statistiques de la Plateforme</h1>
+                <p class="mt-2 text-gray-600">Analysez les performances et les tendances de NGOMBILAND</p>
             </div>
-            <div class="bg-white p-4 rounded-lg border">
-                <h3 class="font-bold mb-4">Répartition des Biens</h3>
-                <canvas id="propertyDistributionChart" height="200"></canvas>
-            </div>
+            <a href="{{ route('admin.dashboard') }}" 
+               class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                Retour au Dashboard
+            </a>
         </div>
 
-        <div class="bg-white p-4 rounded-lg border mb-6">
-            <h3 class="font-bold mb-4">Transactions Mensuelles</h3>
-            <canvas id="monthlyTransactionsChart" height="300"></canvas>
+        <!-- Métriques principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-users text-blue-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Utilisateurs Totaux</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['total_users']) }}</p>
+                        <p class="text-sm text-green-600">+{{ $stats['users_growth'] }}% ce mois</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-home text-green-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Propriétés</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['total_properties']) }}</p>
+                        <p class="text-sm text-green-600">+{{ $stats['properties_growth'] }}% ce mois</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-project-diagram text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Projets Crowdfunding</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['total_projects']) }}</p>
+                        <p class="text-sm text-green-600">+{{ $stats['projects_growth'] }}% ce mois</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-coins text-purple-600"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Volume Total</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ number_format($stats['total_volume']) }} FCFA</p>
+                        <p class="text-sm text-green-600">+{{ $stats['volume_growth'] }}% ce mois</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-blue-50 p-4 rounded-lg">
-                <h4 class="font-bold text-blue-800 mb-2">Top Villes</h4>
-                <ul class="space-y-2">
-                    @foreach($topCities as $city)
-                        <li class="flex justify-between">
-                            <span>{{ $city['name'] }}</span>
-                            <span class="font-bold">{{ $city['count'] }} biens</span>
-                        </li>
-                    @endforeach
-                </ul>
+        <!-- Graphiques -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Évolution des utilisateurs -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Évolution des Utilisateurs</h3>
+                <div class="h-64 flex items-center justify-center">
+                    <canvas id="usersChart"></canvas>
+                </div>
             </div>
 
-            <div class="bg-green-50 p-4 rounded-lg">
-                <h4 class="font-bold text-green-800 mb-2">Top Projets</h4>
-                <ul class="space-y-2">
-                    @foreach($topProjects as $project)
-                        <li class="flex justify-between">
-                            <span>{{ $project['name'] }}</span>
-                            <span class="font-bold">{{ $project['progress'] }}% financé</span>
-                        </li>
+            <!-- Répartition par rôle -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Répartition par Rôle</h3>
+                <div class="h-64 flex items-center justify-center">
+                    <canvas id="rolesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableaux de données -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Top propriétés -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Propriétés</h3>
+                <div class="space-y-4">
+                    @foreach($top_properties as $property)
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                                @if($property->images && count($property->images) > 0)
+                                    <img src="{{ asset('storage/' . $property->images[0]) }}" alt="{{ $property->title }}" 
+                                         class="w-12 h-12 object-cover rounded-lg">
+                                @else
+                                    <i class="fas fa-home text-gray-400"></i>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ Str::limit($property->title, 25) }}</p>
+                                <p class="text-sm text-gray-500">{{ $property->location }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-900">{{ number_format($property->price) }} FCFA</p>
+                            <p class="text-sm text-gray-500">{{ $property->views }} vues</p>
+                        </div>
+                    </div>
                     @endforeach
-                </ul>
+                </div>
             </div>
 
-            <div class="bg-purple-50 p-4 rounded-lg">
-                <h4 class="font-bold text-purple-800 mb-2">Méthodes de Paiement</h4>
-                <ul class="space-y-2">
-                    @foreach($paymentMethods as $method)
-                        <li class="flex justify-between">
-                            <span>{{ $method['name'] }}</span>
-                            <span class="font-bold">{{ $method['percent'] }}%</span>
-                        </li>
+            <!-- Top projets crowdfunding -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Projets Crowdfunding</h3>
+                <div class="space-y-4">
+                    @foreach($top_projects as $project)
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center mr-3">
+                                @if($project->images && count($project->images) > 0)
+                                    <img src="{{ asset('storage/' . $project->images[0]) }}" alt="{{ $project->title }}" 
+                                         class="w-12 h-12 object-cover rounded-lg">
+                                @else
+                                    <i class="fas fa-home text-gray-400"></i>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ Str::limit($project->title, 25) }}</p>
+                                <p class="text-sm text-gray-500">{{ $project->property->location }}</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-900">{{ round($project->progress_percentage) }}%</p>
+                            <p class="text-sm text-gray-500">{{ number_format($project->amount_raised) }} FCFA</p>
+                        </div>
+                    </div>
                     @endforeach
-                </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques détaillées -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">Statistiques Détaillées</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600 mb-2">{{ $stats['active_users'] }}</div>
+                    <div class="text-gray-600">Utilisateurs Actifs</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600 mb-2">{{ $stats['successful_projects'] }}</div>
+                    <div class="text-gray-600">Projets Financés</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600 mb-2">{{ $stats['total_investments'] }}</div>
+                    <div class="text-gray-600">Investissements</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
 
-@section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/stat.js') }}"></script>
 <script>
-    // Initialiser les graphiques avec des données dynamiques si besoin
+// Graphique des utilisateurs
+const usersCtx = document.getElementById('usersChart').getContext('2d');
+new Chart(usersCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+        datasets: [{
+            label: 'Utilisateurs',
+            data: [120, 190, 300, 500, 200, 300],
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Graphique des rôles
+const rolesCtx = document.getElementById('rolesChart').getContext('2d');
+new Chart(rolesCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Clients', 'Propriétaires', 'Investisseurs', 'Agents'],
+        datasets: [{
+            data: [40, 25, 20, 15],
+            backgroundColor: [
+                'rgb(59, 130, 246)',
+                'rgb(16, 185, 129)',
+                'rgb(245, 158, 11)',
+                'rgb(239, 68, 68)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
 </script>
 @endsection
